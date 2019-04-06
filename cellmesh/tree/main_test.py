@@ -16,6 +16,7 @@ def test_iMeSH_D_Tree():
   iMT.show_all_tree()
 
   # show subtree for two mids
+  # modify "1", "2" etc to any tag strings you want
   mid_list = [("D011901", "1"), ("D019599", "2")]
   st = iMT.tree_str(mid_list)
   print("\n\nsubtree for mid_list=%s"%str(mid_list))
