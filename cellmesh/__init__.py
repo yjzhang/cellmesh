@@ -32,16 +32,16 @@ def get_all_cell_id_names():
     return results
 
 @lru_cache(maxsize=None)
-def get_cell_genes(cell, threshold=4):
+def get_cell_genes_pmids(cell, threshold=4):
     """
     Given a cell ID, this returns a list of all genes associated with that cell.
     The threshold is the minimum count for the gene to be included.
     """
     conn = sqlite3.connect(DB_DIR)
     C = conn.cursor()
-    C.execute('SELECT gene, count FROM cell_gene WHERE cellID=?', (cell,))
+    C.execute('SELECT gene, pmids, count FROM cell_gene WHERE cellID=?', (cell,))
     results = C.fetchall()
-    results = [x[0] for x in results if x[1] >= threshold]
+    results = [x[:2] for x in results if x[2] >= threshold]
     conn.close()
     return results
 
@@ -56,22 +56,25 @@ def hypergeometric_test(genes, return_header=False):
     genes = set(genes)
     # each cell should have 4 items: cell type, p-value, overlapping genes, PMIDs
     for cell_id, cell_name in all_cells:
-        cell_genes = set(get_cell_genes(cell_id))
-        overlapping_genes = list(genes.intersection(cell_genes))
+        genes_pmids = set(get_cell_genes_pmids(cell_id))
+        cell_genes = [x[0] for x in genes_pmids]
+        overlapping_genes = genes.intersection(cell_genes)
         if len(overlapping_genes) == 0:
             continue
-        #pmids = {}
-        #for gene in overlapping_genes:
-        #    pmids[gene] = get_papers_cell_gene(cell, gene)
+        pmids = {}
+        for gene, pmid in genes_pmids:
+            if gene in overlapping_genes:
+                pmids[gene] = pmid.split(',')
         k = len(overlapping_genes)
         pv = stats.hypergeom.cdf(k - 1, len(all_genes), len(cell_genes), len(genes))
-        cell_p_vals[cell_id] = (cell_name, 1 - pv, overlapping_genes)
+        overlapping_genes = list(overlapping_genes)
+        cell_p_vals[cell_id] = (cell_name, 1 - pv, overlapping_genes, pmids)
     cell_p_vals = list(cell_p_vals.items())
     cell_p_vals.sort(key=lambda x: x[1][1])
     # merge items
     cell_p_vals = [(x[0],) + x[1] for x in cell_p_vals]
     if return_header:
-        header = ['MeSH ID', 'Cell Name', 'P-value', 'Overlapping Genes']
+        header = ['MeSH ID', 'Cell Name', 'P-value', 'Overlapping Genes', 'PMIDs']
         cell_p_vals = [header] + cell_p_vals
     return cell_p_vals
 
