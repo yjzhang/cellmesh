@@ -18,21 +18,41 @@ with open('data/cell_info.json') as f:
 gene_names = pd.read_table('data/gene.dict.text', header=None)
 gene_names['taxid'], gene_names['gene_id'], gene_names['gene_symbol'] = gene_names[1].str.split(',').str
 
+# load PMIDs
+import gzip
+f = gzip.open('data/gene2pubmed_MeSH.json.gz')
+gene2pubmed = json.loads(f.read().decode())
+
 # create sqlite3 db
 conn = sqlite3.connect('cellmesh/data/cellmesh.db')
 c = conn.cursor()
 
 # create a table representing a cell type - gene mapping.
 try:
-    c.execute('CREATE TABLE cell_gene(cellID text, gene text, count integer)')
-    # TODO: iterate over nonzero entries of corpus
+    # pmids is a comma-separated string of ints
+    c.execute('CREATE TABLE cell_gene(cellID text, gene text, count integer, pmids text)')
+    # iterate over nonzero entries of corpus
     for i1, i2 in zip(*corpus.nonzero()):
         count = corpus[i1, i2]
-        cell_record = cell_info[str(i1+1)]
+        cell_record = cell_info[str(i1)]
         gene_record = gene_names.iloc[i2]
         cell = cell_record['id']
         gene = gene_record.gene_symbol
-        c.execute('INSERT INTO cell_gene VALUES (?, ?, ?)', (cell, gene, count))
+        taxid = gene_record.taxid
+        gene_id = gene_record.gene_id
+        key = '{2},{0}:{1}'.format(gene_id, cell, taxid)
+        try:
+            pubmed_record = gene2pubmed[key]
+        except:
+            print('key not found:', key)
+            continue
+        try:
+            assert(int(count) == pubmed_record['cnt'])
+        except:
+            print('count not correct: {0} vs {1}'.format(count, pubmed_record['cnt']))
+            continue
+        pmids = ','.join(pubmed_record['place'])
+        c.execute('INSERT INTO cell_gene VALUES (?, ?, ?, ?)', (cell, gene, count, pmids))
 except Exception as e:
     print(str(e))
 try:
