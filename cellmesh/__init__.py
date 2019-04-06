@@ -32,15 +32,16 @@ def get_all_cell_id_names():
     return results
 
 @lru_cache(maxsize=None)
-def get_cell_genes(cell):
+def get_cell_genes(cell, threshold=4):
     """
     Given a cell ID, this returns a list of all genes associated with that cell.
+    The threshold is the minimum count for the gene to be included.
     """
     conn = sqlite3.connect(DB_DIR)
     C = conn.cursor()
     C.execute('SELECT gene, count FROM cell_gene WHERE cellID=?', (cell,))
     results = C.fetchall()
-    results = [x[0] for x in results]
+    results = [x[0] for x in results if x[1] >= threshold]
     conn.close()
     return results
 

@@ -70,3 +70,6 @@ try:
     c.execute('CREATE INDEX gene_info_id_index ON gene_info(gene)')
 except:
     pass
+
+conn.commit()
+conn.close()
