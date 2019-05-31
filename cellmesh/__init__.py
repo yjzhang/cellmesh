@@ -55,6 +55,7 @@ def hypergeometric_test(genes, return_header=False):
         of ascending p-value.
     """
     from scipy import stats
+    genes = [x.upper() for x in genes]
     all_cells = get_all_cell_id_names()
     all_genes = get_all_genes()
     cell_p_vals = {}
