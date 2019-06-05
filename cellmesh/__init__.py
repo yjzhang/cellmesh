@@ -9,6 +9,10 @@ except ImportError:
 PATH = os.path.dirname(__file__)
 DB_DIR = os.path.join(PATH, 'data', 'cellmesh.db')
 DB_TFIDF_DIR = os.path.join(PATH, 'data', 'cellmesh_tfidf.db')
+# number of cell types that pass the threshold
+N_CELLS_THRESHOLD = 372
+TFIDF_THRESHOLD = 0.034154
+N_CELLS_THRESHOLD_TFIDF = 534
 
 def get_all_genes(db_dir=DB_DIR):
     """
@@ -21,14 +25,23 @@ def get_all_genes(db_dir=DB_DIR):
     conn.close()
     return [x[0] for x in results]
 
-def get_all_cell_id_names(db_dir=DB_DIR):
+@lru_cache(maxsize=None)
+def get_all_cell_id_names(db_dir=DB_DIR, include_cell_components=True, include_chromosomes=False):
     """
     Returns a list of all unique cell ids + names
     """
     conn = sqlite3.connect(db_dir)
     C = conn.cursor()
-    C.execute('SELECT DISTINCT cellID, cellName  FROM cell_name')
+    C.execute('SELECT DISTINCT cellID, cellName FROM cell_name')
     results = C.fetchall()
+    if not include_cell_components:
+        with open(os.path.join(PATH, 'data', 'cell_component_ids.txt')) as f:
+            cell_components = set(x.strip() for x in f.readlines())
+            results = [x for x in results if x[0] not in cell_components]
+    if not include_chromosomes:
+        with open(os.path.join(PATH, 'data', 'chromosome_ids.txt')) as f:
+            chromosomes = set(x.strip() for x in f.readlines())
+            results = [x for x in results if x[0] not in chromosomes]
     conn.close()
     return results
 
@@ -45,6 +58,17 @@ def get_cell_genes_pmids(cell, threshold=3, db_dir=DB_DIR):
     results = [x[:2] for x in results if x[2] > threshold]
     conn.close()
     return results
+
+@lru_cache(maxsize=None)
+def get_cells_threshold(threshold=3, db_dir=DB_DIR):
+    """
+    Returns a list of all cell types with their max citation count, as a tuple of (cellID, cellName, count).
+    """
+    conn = sqlite3.connect(db_dir)
+    C = conn.cursor()
+    C.execute('SELECT DISTINCT cell_name.cellID, cellName, MAX(count) FROM cell_name INNER JOIN cell_gene ON cell_name.cellID = cell_gene.cellID GROUP BY cell_name.cellID;')
+    results = C.fetchall()
+    return [x for x in results if x[2] > threshold]
 
 def hypergeometric_test(genes, return_header=False):
     """
