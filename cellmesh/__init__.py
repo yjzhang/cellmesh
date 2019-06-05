@@ -60,7 +60,7 @@ def get_cell_genes_pmids(cell, threshold=3, db_dir=DB_DIR):
     return results
 
 @lru_cache(maxsize=None)
-def get_cells_threshold(threshold=3, db_dir=DB_DIR):
+def get_cells_threshold(threshold=3, db_dir=DB_DIR, include_cell_components=True, include_chromosomes=False):
     """
     Returns a list of all cell types with their max citation count, as a tuple of (cellID, cellName, count).
     """
@@ -68,9 +68,17 @@ def get_cells_threshold(threshold=3, db_dir=DB_DIR):
     C = conn.cursor()
     C.execute('SELECT DISTINCT cell_name.cellID, cellName, MAX(count) FROM cell_name INNER JOIN cell_gene ON cell_name.cellID = cell_gene.cellID GROUP BY cell_name.cellID;')
     results = C.fetchall()
+    if not include_cell_components:
+        with open(os.path.join(PATH, 'data', 'cell_component_ids.txt')) as f:
+            cell_components = set(x.strip() for x in f.readlines())
+            results = [x for x in results if x[0] not in cell_components]
+    if not include_chromosomes:
+        with open(os.path.join(PATH, 'data', 'chromosome_ids.txt')) as f:
+            chromosomes = set(x.strip() for x in f.readlines())
+            results = [x for x in results if x[0] not in chromosomes]
     return [x for x in results if x[2] > threshold]
 
-def hypergeometric_test(genes, return_header=False):
+def hypergeometric_test(genes, return_header=False, include_cell_components=False, include_chromosomes=False):
     """
     Uses a hypergeometric test to identify the most relevant cell types.
 
@@ -80,7 +88,7 @@ def hypergeometric_test(genes, return_header=False):
     """
     from scipy import stats
     genes = [x.upper() for x in genes]
-    all_cells = get_all_cell_id_names()
+    all_cells = get_all_cell_id_names(include_cell_components=include_cell_components, include_chromosomes=include_chromosomes)
     all_genes = get_all_genes()
     cell_p_vals = {}
     genes = set(genes)
@@ -108,7 +116,7 @@ def hypergeometric_test(genes, return_header=False):
         cell_p_vals = [header] + cell_p_vals
     return cell_p_vals
 
-def normed_hypergeometric_test(genes, return_header=False):
+def normed_hypergeometric_test(genes, return_header=False, include_cell_components=False, include_chromosomes=False):
     """
     This hypergeometric test is on the tf-idf matrix, with a calibrated threshold.
 
@@ -117,7 +125,7 @@ def normed_hypergeometric_test(genes, return_header=False):
         of ascending p-value.
     """
     from scipy import stats
-    all_cells = get_all_cell_id_names(db_dir=DB_TFIDF_DIR)
+    all_cells = get_all_cell_id_names(db_dir=DB_TFIDF_DIR, include_cell_components=include_cell_components, include_chromosomes=include_chromosomes)
     all_genes = get_all_genes(db_dir=DB_TFIDF_DIR)
     cell_p_vals = {}
     genes = set(genes)
