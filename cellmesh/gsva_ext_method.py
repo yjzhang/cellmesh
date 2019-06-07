@@ -8,9 +8,9 @@ from cellmesh import \
   get_all_genes, \
   get_cell_genes_pmids_count
 
-def calc_prob_one_query_one_cell(args):
+def calc_gsva_ext_one_query_one_cell(args):
   '''
-  calc prob score for one query and one cell
+  calc gsva_ext ES (enrichment score) for one query and one cell
 
   Input:
     genes: a ranked list of gene symbols, as query Q
@@ -18,65 +18,25 @@ def calc_prob_one_query_one_cell(args):
     cell_gene_count: list of (gene symbol, cnt wrt C)
     overlapping_genes: set of gene symbols occurring in Q and C
       currently not used
-    params: contains config params of prob_test. see prob_test() for description
+    params: contains config params of gsva_ext_test. see gsva_ext_test() for description
     N_all_genes: total number of genes in DB
   Output:
-    a tuple of cell id of MeSH cell C and P(Q|C) (Q for query)
+    a tuple of cell id of MeSH cell C and ES wrt Q (Q for query)
   '''
   genes, cell_id, cell_gene_count, overlapping_genes, params, N_all_genes = args
 
-  alpha = params.get("alpha", None)
+  print("process cell %s, Kc=%d, k=%d"%(cell_id, len(cell_gene_count), len(overlapping_genes)))
 
-  # print("process cell %s, Kc=%d, k=%d"%(cell_id, len(cell_gene_count), len(overlapping_genes)))
+  return (cell_id, 0) 
 
-  col_sum = sum([x[1] for x in cell_gene_count])
-  if col_sum==0:
-    return (cell_id, -np.inf)
-
-  #dic with key as gene symbol and val as (rank/0-based, normed weight)
-  cell_gene_count = sorted(cell_gene_count, key=lambda x: -x[1])
-  N = len(cell_gene_count)
-  db_col = {}
-  for rank in range(N):
-    g, cnt = cell_gene_count[rank]
-    weight = float(cnt) / col_sum
-    db_col[g] = (rank, weight)
-
-  #query genes: g(0), g(1), ..., g(M-1)
-  #       rank:    0,    1, ..., M-1
-  M = len(genes)
-  q_list = [(genes[i], i) for i in range(M)]
-
-  ES_ML = 0 #enrichment score, maximum likelihood
-
-  for g, rank_Q in q_list:
-    if g in db_col:
-      weight_D = db_col[g][1]
-      step = np.log(weight_D)
-
-      if alpha is not None:
-        alpha_val = np.log(alpha)
-        step += alpha_val
-    else:
-      step = -np.log(N_all_genes - N) if N_all_genes!=N else 0
-
-      if alpha is not None:
-        alpha_val = np.log(1-alpha)
-        step += alpha_val
-    ES_ML += step
-
-  return (cell_id, ES_ML) 
-
-def prob_test_default_params():
+def gsva_ext_test_default_params():
   params = {}
   params["n_proc"] = 10
-  params["db_cnt_thre"] = 0
-  params["alpha"] = None
   return params
 
-def prob_test(genes, return_header=False, include_cell_components=False, include_chromosomes=False, params=None):
+def gsva_ext_test(genes, return_header=False, include_cell_components=False, include_chromosomes=False, params=None):
   '''
-  This is the Maximum Likelihood query test on the tf-idf matrix
+  This is the GSVA ext (aka modified) query test on the tf-idf matrix
     the function is modified so that it has similar I/O structure as normed_hypergeometric_test
 
   Input:
@@ -84,14 +44,12 @@ def prob_test(genes, return_header=False, include_cell_components=False, include
     return_header:
     include_cell_components:
     include_chromosomes:
-    params: None or contains config params of prob_test
+    params: None or contains config params of gsva_ext_test
       {
         "n_proc": number of processes for parallel processing,
-        "db_cnt_thre": a gene g is considered to co-occur with a cell c if db(g, c) > db_cnt_thre
-        "alpha": None to disable, or (0,1), controls sampling probability of a query gene from a candidate cell
       }
   Output:
-    cell_prob_vals: list of 5-tuples: MeSH ID, cell name, prob val (in log), overlapping genes, pmids, 
+    cell_ES_vals: list of 5-tuples: MeSH ID, cell name, ES (enrichment score) val, overlapping genes, pmids, 
       in descending order
   '''
 
@@ -104,10 +62,10 @@ def prob_test(genes, return_header=False, include_cell_components=False, include
 
   #----- algo configuration
   if params is None:
-    params = prob_test_default_params()
+    params = gsva_ext_test_default_params()
 
-  #----- prepare info for per (cell_id, cell_name, prob=n/a, overlapping_genes, pmids)
-  cell_prob_vals = {}
+  #----- prepare info for per (cell_id, cell_name, ES=n/a, overlapping_genes, pmids)
+  cell_ES_vals = {}
   args_list = []
   for cell_id, cell_name in all_cells:
     #a set of (gene_symbol, its pmids connected by ",", cnt val) wrt candidate cell_id
@@ -123,7 +81,7 @@ def prob_test(genes, return_header=False, include_cell_components=False, include
         pmids[gene] = pmid.split(',')
 
     overlapping_genes = list(overlapping_genes)
-    cell_prob_vals[cell_id] = [cell_name, -np.inf, overlapping_genes, pmids]
+    cell_ES_vals[cell_id] = [cell_name, -np.inf, overlapping_genes, pmids]
 
     cell_gene_count = [(x[0], x[2]) for x in genes_pmids_count]
     args = (
@@ -136,33 +94,33 @@ def prob_test(genes, return_header=False, include_cell_components=False, include
       )
     args_list.append(args)
 
-  #----- calc prob scores, in parallel if possible
+  #----- calc ES scores, in parallel if possible
   n_proc = params["n_proc"]
   res = []
   if n_proc==1:
     for args in args_list:
-      r = calc_prob_one_query_one_cell(args)
+      r = calc_gsva_ext_one_query_one_cell(args)
       res.append(r)
   else:
     p = multiprocessing.Pool(n_proc)
-    res = p.map(calc_prob_one_query_one_cell, args_list)
-  for cell_id, prob in res:
-    cell_prob_vals[cell_id][1] = prob
-    cell_prob_vals[cell_id] = tuple(cell_prob_vals[cell_id])
+    res = p.map(calc_gsva_ext_one_query_one_cell, args_list)
+  for cell_id, ES in res:
+    cell_ES_vals[cell_id][1] = ES
+    cell_ES_vals[cell_id] = tuple(cell_ES_vals[cell_id])
 
   #----- wrap up outputs -----
 
-  cell_prob_vals = list(cell_prob_vals.items())
-  cell_prob_vals.sort(key=lambda x: -x[1][1]) #descending order
+  cell_ES_vals = list(cell_ES_vals.items())
+  cell_ES_vals.sort(key=lambda x: -x[1][1]) #descending order
   # merge items
-  cell_prob_vals = [(x[0],) + x[1] for x in cell_prob_vals]
+  cell_ES_vals = [(x[0],) + x[1] for x in cell_ES_vals]
   if return_header is True:
     header = ['MeSH ID', 'Cell Name', 'Prob-value', 'Overlapping Genes', 'PMIDs']
-    cell_prob_vals = [header] + cell_prob_vals
+    cell_ES_vals = [header] + cell_ES_vals
 
-  return cell_prob_vals
+  return cell_ES_vals
 
-def test_prob_test():
+def test_gsva_ext_test():
   #tabula-muris-dropseq, top ~20 genes (taxid,geneid,symbol) for B cell
   #based on scLit, the top retrieval should be:
   #  D001402, B-Lymphocytes, -89.49026841217798
@@ -184,14 +142,14 @@ def test_prob_test():
     '9606,5450,POU2AF1'
   ]
   genes = [g.split(",")[2] for g in genes]
-  params = prob_test_default_params()
+  params = gsva_ext_test_default_params()
 
-  cell_prob_vals = prob_test(genes=genes, params=params)
+  cell_ES_vals = gsva_ext_test(genes=genes, params=params)
   
-  for i in range(min(len(cell_prob_vals), 10)):
-    t = cell_prob_vals[i]
-    print("i=%d, id=%s, name=%s, prob=%f"%(i, t[0], t[1], t[2]))
+  for i in range(min(len(cell_ES_vals), 10)):
+    t = cell_ES_vals[i]
+    print("i=%d, id=%s, name=%s, ES=%f"%(i, t[0], t[1], t[2]))
   return
 
 if __name__ == '__main__':
-  test_prob_test()
+  test_gsva_ext_test()
