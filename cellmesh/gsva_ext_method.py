@@ -32,6 +32,7 @@ def calc_gsva_ext_one_query_one_cell(args):
 def gsva_ext_test_default_params():
   params = {}
   params["n_proc"] = 10
+  params["db_cnt_thre"] = 0
   return params
 
 def gsva_ext_test(genes, return_header=False, include_cell_components=False, include_chromosomes=False, params=None):
@@ -47,6 +48,7 @@ def gsva_ext_test(genes, return_header=False, include_cell_components=False, inc
     params: None or contains config params of gsva_ext_test
       {
         "n_proc": number of processes for parallel processing,
+        "db_cnt_thre": a gene g is considered to co-occur with a cell c if db(g, c) > db_cnt_thre
       }
   Output:
     cell_ES_vals: list of 5-tuples: MeSH ID, cell name, ES (enrichment score) val, overlapping genes, pmids, 
