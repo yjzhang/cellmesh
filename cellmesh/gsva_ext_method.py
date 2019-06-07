@@ -48,7 +48,7 @@ def calc_gsva_ext_one_query_one_cell(args):
   '''
   genes_set, cell_id, cell_gene_count, params, all_genes = args
 
-  print("process cell %s, Kc=%d, k=%d"%(cell_id, len(cell_gene_count), len(overlapping_genes)))
+  # print("process cell %s, Kc=%d"%(cell_id, len(cell_gene_count)))
 
   cell_gene_rank_sorted = calc_cell_gene_ranks(cell_gene_count, all_genes)
 
@@ -68,6 +68,7 @@ def calc_gsva_ext_one_query_one_cell(args):
 
   ES = -np.inf 
   v = 0.0
+  N = len(walk_step_list)
   for i in range(N):
     inc_val = float(walk_step_list[i])/denom1 if walk_step_list[i]>=0 \
       else (-1.0/denom2)
@@ -104,6 +105,11 @@ def gsva_ext_test(genes, return_header=False, include_cell_components=False, inc
   Output:
     cell_ES_vals: list of 5-tuples: MeSH ID, cell name, ES (enrichment score) val, overlapping genes, pmids, 
       in descending order
+
+  Note:
+    [1] Because for each candidate cell C, the genes not in C will have same score 0 to be sorted,
+          these genes are affected by the randomness of the sort algo and may share different ranks, and
+          affect resulting score slightly.
   '''
 
   all_cells = get_all_cell_id_names(
@@ -174,8 +180,14 @@ def gsva_ext_test(genes, return_header=False, include_cell_components=False, inc
 
 def test_gsva_ext_test():
   #tabula-muris-dropseq, top ~20 genes (taxid,geneid,symbol) for B cell
+  #
   #based on scLit, the top retrieval should be:
-  #  D001402, B-Lymphocytes, -89.49026841217798
+  # (0, D001402, B-Lymphocytes, 0.9366393041827988)*t1*
+  # (1, D013601, T-Lymphocytes, 0.8473210800232266)
+  #
+  #Note:
+  # scLit and here have slightly different number of genes in DB
+  #  so score could be slightly different.
   genes = [
     '9606,973,CD79A',
     '9606,931,MS4A1',
