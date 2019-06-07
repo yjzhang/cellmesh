@@ -61,16 +61,16 @@ def calc_gsva_ext_one_query_one_cell(args):
     walk_step_list.append(walk_step)
 
   denom1 = sum([w for w in walk_step_list if w>=0])
-  denom2 = N - len(genes_set)
+  denom2 = len(all_genes) - len(genes_set)
 
   if denom1<=0 or denom2<=0:
     return (cell_id, 0)
 
   ES = -np.inf 
   v = 0.0
-
   for i in range(N):
-    inc_val = float(walk_step_list[i])/denom1 if walk_step_list[i]>=0 else (-1.0/denom2)
+    inc_val = float(walk_step_list[i])/denom1 if walk_step_list[i]>=0 \
+      else (-1.0/denom2)
     v = v + inc_val
     ES = max(v, ES)  
 
