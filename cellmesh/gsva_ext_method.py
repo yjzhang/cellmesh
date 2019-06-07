@@ -1,6 +1,7 @@
 import pdb
 import numpy as np
 import multiprocessing
+from math import pow
 
 from cellmesh import \
   DB_TFIDF_DIR,\
@@ -8,31 +9,80 @@ from cellmesh import \
   get_all_genes, \
   get_cell_genes_pmids_count
 
+def calc_cell_gene_ranks(cell_gene_count, all_genes):
+  '''
+  Input:
+    cell_gene_count: list of (gene symbol, cnt)
+    all_genes: set of all genes in DB
+  Output:
+    cell_gene_rank_sorted: list of (gene symbol, rank)
+      including all genes
+
+  TODO:
+    The same cell has calc_cell_gene_ranks called repeatedly for different queries,
+      this is not efficient. Needs to incorporate this in DB.
+  '''
+  cell_genes = set([x[0] for x in cell_gene_count])
+  non_cell_genes = all_genes.difference(cell_genes)
+  cell_gene_sorted = cell_gene_count + [(g, 0) for g in non_cell_genes]
+  cell_gene_sorted = sorted(cell_gene_sorted, key=lambda x: -x[1])
+  
+  N = len(all_genes)
+  p = int(N/2)
+  cell_gene_rank_sorted = [(cell_gene_sorted[i][0], p-i) for i in range(N)]
+
+  return cell_gene_rank_sorted
+
 def calc_gsva_ext_one_query_one_cell(args):
   '''
   calc gsva_ext ES (enrichment score) for one query and one cell
 
   Input:
-    genes: a ranked list of gene symbols, as query Q
+    genes_set: a set of query gene symbols
     cell_id: MeSH cell id of a candidate cell C (wrt a column in DB)
     cell_gene_count: list of (gene symbol, cnt wrt C)
-    overlapping_genes: set of gene symbols occurring in Q and C
-      currently not used
     params: contains config params of gsva_ext_test. see gsva_ext_test() for description
-    N_all_genes: total number of genes in DB
+    all_genes: set of all genes in DB
   Output:
     a tuple of cell id of MeSH cell C and ES wrt Q (Q for query)
   '''
-  genes, cell_id, cell_gene_count, overlapping_genes, params, N_all_genes = args
+  genes_set, cell_id, cell_gene_count, params, all_genes = args
 
   print("process cell %s, Kc=%d, k=%d"%(cell_id, len(cell_gene_count), len(overlapping_genes)))
 
-  return (cell_id, 0) 
+  cell_gene_rank_sorted = calc_cell_gene_ranks(cell_gene_count, all_genes)
+
+  walk_step_list = []
+  for g, r in cell_gene_rank_sorted:
+    if g in genes_set:
+      walk_step = pow(np.abs(r), params.get("tau", 1))
+    else:
+      walk_step = -1
+    walk_step_list.append(walk_step)
+
+  denom1 = sum([w for w in walk_step_list if w>=0])
+  denom2 = N - len(genes_set)
+
+  if denom1<=0 or denom2<=0:
+    return (cell_id, 0)
+
+  ES = -np.inf 
+  v = 0.0
+
+  for i in range(N):
+    inc_val = float(walk_step_list[i])/denom1 if walk_step_list[i]>=0 else (-1.0/denom2)
+    v = v + inc_val
+    ES = max(v, ES)  
+
+  if ES<0: ES=0
+
+  return (cell_id, ES) 
 
 def gsva_ext_test_default_params():
   params = {}
   params["n_proc"] = 10
   params["db_cnt_thre"] = 0
+  params["tau"] = 1
   return params
 
 def gsva_ext_test(genes, return_header=False, include_cell_components=False, include_chromosomes=False, params=None):
@@ -49,6 +99,7 @@ def gsva_ext_test(genes, return_header=False, include_cell_components=False, inc
       {
         "n_proc": number of processes for parallel processing,
         "db_cnt_thre": a gene g is considered to co-occur with a cell c if db(g, c) > db_cnt_thre
+        "tau": used to calc walk step
       }
   Output:
     cell_ES_vals: list of 5-tuples: MeSH ID, cell name, ES (enrichment score) val, overlapping genes, pmids, 
@@ -58,7 +109,7 @@ def gsva_ext_test(genes, return_header=False, include_cell_components=False, inc
   all_cells = get_all_cell_id_names(
     db_dir=DB_TFIDF_DIR, include_cell_components=include_cell_components, include_chromosomes=include_chromosomes)
   all_genes = get_all_genes(db_dir=DB_TFIDF_DIR)
-  N_all_genes = len(all_genes)
+  all_genes = set(all_genes)
 
   genes_set = set(genes)
 
@@ -87,12 +138,11 @@ def gsva_ext_test(genes, return_header=False, include_cell_components=False, inc
 
     cell_gene_count = [(x[0], x[2]) for x in genes_pmids_count]
     args = (
-      genes,
+      genes_set,
       cell_id,
       cell_gene_count,
-      overlapping_genes,
       params,
-      N_all_genes
+      all_genes
       )
     args_list.append(args)
 
