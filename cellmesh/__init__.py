@@ -60,6 +60,20 @@ def get_cell_genes_pmids(cell, threshold=3, db_dir=DB_DIR):
     return results
 
 @lru_cache(maxsize=None)
+def get_cell_genes_pmids_count(cell, threshold=3, db_dir=DB_DIR):
+    """
+    Given a cell ID, this returns a list of all genes associated with that cell.
+    The threshold is the minimum count for the gene to be included.
+    """
+    conn = sqlite3.connect(db_dir)
+    C = conn.cursor()
+    C.execute('SELECT gene, pmids, count FROM cell_gene WHERE cellID=?', (cell,))
+    results = C.fetchall()
+    results = [x for x in results if x[2] > threshold]
+    conn.close()
+    return results
+
+@lru_cache(maxsize=None)
 def get_cells_threshold(threshold=3, db_dir=DB_DIR, include_cell_components=True, include_chromosomes=False):
     """
     Returns a list of all cell types with their max citation count, as a tuple of (cellID, cellName, count).
