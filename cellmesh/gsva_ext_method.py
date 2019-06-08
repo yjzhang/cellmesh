@@ -81,7 +81,7 @@ def calc_gsva_ext_one_query_one_cell(args):
 
 def gsva_ext_test_default_params():
   params = {}
-  params["n_proc"] = 10
+  params["n_proc"] = 1
   params["db_cnt_thre"] = 0
   params["tau"] = 1
   return params

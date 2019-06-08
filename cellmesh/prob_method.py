@@ -69,7 +69,7 @@ def calc_prob_one_query_one_cell(args):
 
 def prob_test_default_params():
   params = {}
-  params["n_proc"] = 10
+  params["n_proc"] = 1
   params["db_cnt_thre"] = 0
   params["alpha"] = None
   return params
@@ -157,7 +157,7 @@ def prob_test(genes, return_header=False, include_cell_components=False, include
   # merge items
   cell_prob_vals = [(x[0],) + x[1] for x in cell_prob_vals]
   if return_header is True:
-    header = ['MeSH ID', 'Cell Name', 'Prob-value', 'Overlapping Genes', 'PMIDs']
+    header = ['MeSH ID', 'Cell Name', 'Log-likelihood', 'Overlapping Genes', 'PMIDs']
     cell_prob_vals = [header] + cell_prob_vals
 
   return cell_prob_vals
