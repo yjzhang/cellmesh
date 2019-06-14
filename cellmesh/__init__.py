@@ -26,7 +26,7 @@ def get_all_genes(db_dir=DB_DIR):
     return [x[0] for x in results]
 
 @lru_cache(maxsize=None)
-def get_all_cell_id_names(db_dir=DB_DIR, include_cell_components=True, include_chromosomes=False):
+def get_all_cell_id_names(db_dir=DB_DIR, include_cell_components=True, include_chromosomes=False, include_cell_lines=False):
     """
     Returns a list of all unique cell ids + names
     """
@@ -42,6 +42,10 @@ def get_all_cell_id_names(db_dir=DB_DIR, include_cell_components=True, include_c
         with open(os.path.join(PATH, 'data', 'chromosome_ids.txt')) as f:
             chromosomes = set(x.strip() for x in f.readlines())
             results = [x for x in results if x[0] not in chromosomes]
+    if not include_cell_lines:
+        with open(os.path.join(PATH, 'data', 'cell_line_ids.txt')) as f:
+            cell_lines = set(x.strip() for x in f.readlines())
+            results = [x for x in results if x[0] not in cell_lines]
     conn.close()
     return results
 
@@ -74,7 +78,7 @@ def get_cell_genes_pmids_count(cell, threshold=3, db_dir=DB_DIR):
     return results
 
 @lru_cache(maxsize=None)
-def get_cells_threshold(threshold=3, db_dir=DB_DIR, include_cell_components=True, include_chromosomes=False):
+def get_cells_threshold(threshold=3, db_dir=DB_DIR, include_cell_components=True, include_chromosomes=False, include_cell_lines=False):
     """
     Returns a list of all cell types with their max citation count, as a tuple of (cellID, cellName, count).
     """
@@ -90,9 +94,14 @@ def get_cells_threshold(threshold=3, db_dir=DB_DIR, include_cell_components=True
         with open(os.path.join(PATH, 'data', 'chromosome_ids.txt')) as f:
             chromosomes = set(x.strip() for x in f.readlines())
             results = [x for x in results if x[0] not in chromosomes]
+    if not include_cell_lines:
+        with open(os.path.join(PATH, 'data', 'cell_line_ids.txt')) as f:
+            cell_lines = set(x.strip() for x in f.readlines())
+            results = [x for x in results if x[0] not in cell_lines]
     return [x for x in results if x[2] > threshold]
 
-def hypergeometric_test(genes, return_header=False, include_cell_components=False, include_chromosomes=False):
+def hypergeometric_test(genes, return_header=False, include_cell_components=False, include_chromosomes=False,
+        include_cell_lines=False):
     """
     Uses a hypergeometric test to identify the most relevant cell types.
 
@@ -102,7 +111,8 @@ def hypergeometric_test(genes, return_header=False, include_cell_components=Fals
     """
     from scipy import stats
     genes = [x.upper() for x in genes]
-    all_cells = get_all_cell_id_names(include_cell_components=include_cell_components, include_chromosomes=include_chromosomes)
+    all_cells = get_all_cell_id_names(include_cell_components=include_cell_components,
+            include_chromosomes=include_chromosomes, include_cell_lines=include_cell_lines)
     all_genes = get_all_genes()
     cell_p_vals = {}
     genes = set(genes)
@@ -130,7 +140,7 @@ def hypergeometric_test(genes, return_header=False, include_cell_components=Fals
         cell_p_vals = [header] + cell_p_vals
     return cell_p_vals
 
-def normed_hypergeometric_test(genes, return_header=False, include_cell_components=False, include_chromosomes=False):
+def normed_hypergeometric_test(genes, return_header=False, include_cell_components=False, include_chromosomes=False, include_cell_lines=False):
     """
     This hypergeometric test is on the tf-idf matrix, with a calibrated threshold.
 
@@ -139,7 +149,7 @@ def normed_hypergeometric_test(genes, return_header=False, include_cell_componen
         of ascending p-value.
     """
     from scipy import stats
-    all_cells = get_all_cell_id_names(db_dir=DB_TFIDF_DIR, include_cell_components=include_cell_components, include_chromosomes=include_chromosomes)
+    all_cells = get_all_cell_id_names(db_dir=DB_TFIDF_DIR, include_cell_components=include_cell_components, include_chromosomes=include_chromosomes, include_cell_lines=include_cell_lines)
     all_genes = get_all_genes(db_dir=DB_TFIDF_DIR)
     cell_p_vals = {}
     genes = set(genes)
