@@ -9,6 +9,7 @@ except ImportError:
 PATH = os.path.dirname(__file__)
 DB_DIR = os.path.join(PATH, 'data', 'cellmesh.db')
 DB_TFIDF_DIR = os.path.join(PATH, 'data', 'cellmesh_tfidf.db')
+CELLMESH_CELLMARKER_MAP = os.path.join(PATH, 'data', 'cell_ontology_mesh_mapping.tsv')
 # number of cell types that pass the threshold
 N_CELLS_THRESHOLD = 372
 TFIDF_THRESHOLD = 0.034154
@@ -179,3 +180,72 @@ def normed_hypergeometric_test(genes, return_header=False, include_cell_componen
 
 
 # TODO: what is a more sophisticated test that accounts for the same genes being present in many different cell types?
+
+
+def cellmesh_to_cellonto(name_or_id, is_name=True):
+    """
+    Maps a cellmesh name to cellmarker id + name pairs
+
+    Args:
+        name_or_id (str or list): string or list of names
+    """
+    import pandas as pd
+    data = pd.read_table(CELLMESH_CELLMARKER_MAP)
+    outputs = []
+    if isinstance(name_or_id, str):
+        return cellmesh_to_cellonto_single(name_or_id, data, is_name)
+    else:
+        for name in name_or_id:
+            outputs.append(cellmesh_to_cellonto_single(name, data, is_name))
+    return outputs
+
+def cellmesh_to_cellonto_single(name_or_id, data=None, is_name=True):
+    """
+    Returns: a list of (cell ontology id, cell ontology name) pairs
+    """
+    import pandas as pd
+    if data is None:
+        data = pd.read_table(CELLMESH_CELLMARKER_MAP)
+    if is_name:
+        data_subset = data[data['MeSH Name(s)'] == name_or_id]
+    else:
+        data_subset = data[data['MeSH UID'] == name_or_id]
+    if len(data_subset) == 0:
+        return []
+    else:
+        return [(value[1], value[2]) for value in data_subset[['Cell Ontology ID', 'Cell Ontology Name']].itertuples()]
+
+
+def cellonto_to_cellmesh(name_or_id, is_name=True):
+    """
+    Maps a cellmarker name to cellmesh id + name pairs
+
+    Args:
+        name_or_id (str or list): string or list of names
+    """
+    import pandas as pd
+    data = pd.read_table(CELLMESH_CELLMARKER_MAP)
+    outputs = []
+    if isinstance(name_or_id, str):
+        return cellonto_to_cellmesh_single(name_or_id, data, is_name)
+    else:
+        for name in name_or_id:
+            outputs.append(cellonto_to_cellmesh_single(name, data, is_name))
+    return outputs
+
+
+def cellonto_to_cellmesh_single(name_or_id, data=None, is_name=True):
+    """
+    Returns: a list of (cellmesh_id, cellmesh_name) pairs
+    """
+    import pandas as pd
+    if data is None:
+        data = pd.read_table(CELLMESH_CELLMARKER_MAP)
+    if is_name:
+        data_subset = data[data['Cell Ontology Name'] == name_or_id]
+    else:
+        data_subset = data[data['Cell Ontology ID'] == name_or_id]
+    if len(data_subset) == 0:
+        return []
+    else:
+        return [(value[1], value[2]) for value in data_subset[['MeSH UID', 'MeSH Name(s)']].itertuples()]

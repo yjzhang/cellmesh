@@ -1,0 +1,275 @@
+Cell Ontology ID	Cell Ontology Name	MeSH Tree ID	MeSH UID	MeSH Name(s)	Notes
+CL_0000020	Undifferentiated type A spermatogonium	A05.360.490.890.900	D013093	Spermatogonia	
+CL_0000023	Oocyte	A11.497.497.600	D009865	Oocytes	
+CL_0000031	Neuroblast	A11.872.653	D058953	Neural Stem Cells	
+CL_0000034	Vascular stem cell	A11.872	D013234	Stem Cells	
+CL_0000037	Hematopoietic stem cell	A11.872.378	D006412	Hematopoietic Stem Cells	
+CL_0000038	Erythroid progenitor	A11.443.240.497	D015672	Erythroid Precursor Cells	
+CL_0000047	Quiescent neural stem cell	A11.872.653	D058953	Neural Stem Cells	
+CL_0000048	Multipotent stem cell	A11.872.590	D039902	Multipotent Stem Cells	
+CL_0000049	Common myeloid progenitor	A11.872.378.590	D023461	Myeloid Progenitor Cells	
+CL_0000050	Megakaryocyte-erythroid progenitor	A11.872.378.590.817	D055015	Megakaryocyte-Erythroid Progenitor Cells	
+CL_0000051	Lymphoid stem cell	A11.872.378.294	D054503	Lymphoid Progenitor Cells	
+CL_0000055	Blast cell				
+CL_0000056	Myoblast	A11.872.620	D032446	Myoblasts	
+CL_0000057	Matrix fibroblast	A11.329.228	D005347	Fibroblasts	
+CL_0000058	Chondrogenic cell	A11.329.171	D019902	Chondrocytes	
+CL_0000062	Osteoblast	A11.329.629	D010006	Osteoblasts	
+CL_0000064	Ciliated cell				
+CL_0000065	Ependymal cell	A11.650.300	D063928	Ependymoglial Cells	
+CL_0000066	SLC16A7+ cell	A11.436			
+CL_0000067	Ciliated epithelial cell	A11.436	D004847	Epithelial Cells	
+CL_0000077	Mesothelial cell	A11.436	D004847	Epithelial Cells	
+CL_0000082	Lung epithelial cell	A11.436	D004847	Epithelial Cells	
+CL_0000084	Thymic emigrant cell				
+CL_0000089	Spermatogonial stem cell	A05.360.490.890.900	D013093	Spermatogonia	
+CL_0000091	Kupffer cell	A11.329.372.588	D007728	Kupffer Cells	
+CL_0000092	Osteoclast	A11.329.372.700	D010010	Osteoclasts	
+CL_0000094	Granulocyte	A11.118.637.415	D006098	Granulocytes	
+CL_0000096	Polymorphonuclear neutrophil	A11.118.637.415.583	D009504	Neutrophils	
+CL_0000097	Mast cell	A11.329.427	D008407	Mast Cells	
+CL_0000098	Neuroepithelial cell	A11.436.690	D046569	Neuroepithelial Cells	
+CL_0000099	Interneuron-selective cell	A11.671.358	D007395	Interneurons	
+CL_0000108	Cholinergic neuron	A11.671.188	D059329	Cholinergic Neurons	
+CL_0000115	Vascular progenitor cell	A11.436.275	D042783	Endothelial Cells	
+CL_0000118	CCK basket cell	A11.671.358	D007395	Interneurons	
+CL_0000121	Purkinje cell	A08.186.211.132.810.428.200.212.600	D011689	Purkinje Cells	
+CL_0000125	Olfactory ensheathing glia	A08.637	D009457	Neuroglia	
+CL_0000127	Astrocyte	A11.650.200	D001253	Astrocytes	
+CL_0000128	Oligodendrocyte	A11.650.600	D009836	Oligodendroglia	
+CL_0000129	Microglial cell	A11.650.400	D017628	Microglia	
+CL_0000132	Corneal endothelial cell	A11.436.275	D042783	Endothelial Cells	
+CL_0000134	Mesenchymal stromal cell	A11.329.830.500	D059630	Mesenchymal Stem Cells	
+CL_0000136	Fat cell (adipocyte)	A11.329.114	D017667	Adipocytes	
+CL_0000137	Osteocyte	A11.329.629.500	D010011	Osteocytes	
+CL_0000138	Chondrocyte	A11.329.171	D019902	Chondrocytes	
+CL_0000151	Secretory cell				
+CL_0000155	Zymogenic chief cell				
+CL_0000158	Epithelial progenitor cell				
+CL_0000160	Goblet cell	A03.556.124.369.320	D020397	Goblet Cells	
+CL_0000163	Endocrine cell	A11.382	D055098	Endocrine Cells	
+CL_0000164	Enteroendocrine cell	A11.382.625	D019858	Enteroendocrine Cells	
+CL_0000165	Neuroendocrine cell	A11.382.944	D055099	Neuroendocrine Cells	
+CL_0000166	Chromaffin cell	A06.224.161	D019439	Chromaffin Cells	
+CL_0000169	Beta cell	A11.382.625.092	D050417	Insulin-Secreting Cells	
+CL_0000171	Alpha cell	A11.382.625.064	D050416	Glucagon-Secreting Cells	
+CL_0000173	Delta cell	A11.382.625.950	D019864	Somatostatin-Secreting Cells	
+CL_0000178	Stem leydig cell	A11.382.906	D007985	Leydig Cells	
+CL_0000182	Hepatocyte	A11.436.348	D022781	Hepatocytes	
+CL_0000185	Myoepithelial cell				
+CL_0000187	Muscle cell	A11.620	D032342	Muscle Cells	
+CL_0000192	Smooth muscle cell	A11.620.520	D032389	Myocytes, Smooth Muscle	
+CL_0000207	Olfactory sensory neuron	A11.671.650.915.500.540	D018034	Olfactory Receptor Neurons	
+CL_0000209	Taste bud cell	A11.671.650.915.500.800	D013650	Taste Buds	
+CL_0000210	Photoreceptor cell	A11.671.650.850.625	D010786	Photoreceptor Cells	
+CL_0000216	Sertoli cell	A05.360.444.849.789	D012708	Sertoli Cells	
+CL_0000222	Pharyngeal mesoderm cell	A16.254.425.660	D008648	Mesoderm	Not a cell type
+CL_0000223	Primitive endoderm cell	A16.254.425.407	D004707	Endoderm	Not a cell type
+CL_0000232	Red blood cell (erythrocyte)	A11.118.290	D004912	Erythrocytes	
+CL_0000233	Platelet	A11.118.188	D001792	Blood Platelets	
+CL_0000235	Macrophage	A11.627.482	D008264	Macrophages	
+CL_0000236	Non-switched B cell	A11.118.637.555.567.562	D001402	B-Lymphocytes	
+CL_0000242	Merkel cell	A08.800.550.700.500.425	D018862	Merkel Cells	
+CL_0000312	Keratinocyte	A11.409.500	D015603	Keratinocytes	
+CL_0000346	Dermal papilla cell				
+CL_0000349	Extraembryonic cell				
+CL_0000351	Villous cytotrophoblast	A11.382.992	D014327	Trophoblasts	
+CL_0000352	Epiblast cell	A16.504	D005855	Germ Layers	
+CL_0000353	8-cell stage cell (Blastomere)	A11.872.700.250.130	D001757	Blastomeres	Not a cell type
+CL_0000354	Blastema cell				
+CL_0000355	Skeletal muscle stem cell	A11.872.620.500	D032448	Myoblasts, Skeletal	
+CL_0000359	Vascular smooth muscle cell	A11.620.520	D032389	Myocytes, Smooth Muscle	
+CL_0000360	Morula cell (Blastomere)	A11.872.700.250.130	D001757	Blastomeres	Not a cell type
+CL_0000362	Epidermal transit amplifying cell				
+CL_0000442	Follicular dendritic cell	A11.066.275	D020566	Dendritic Cells, Follicular	
+CL_0000448	White fat cell	A11.329.114.500	D052438	Adipocytes, White	
+CL_0000449	Brown fat cell	A11.329.114.249	D052437	Adipocytes, Brown	
+CL_0000451	Immature dendritic cell	A11.066.270	D003713	Dendritic Cells	
+CL_0000453	Langerhans cell	A11.066.270.500	D007801	Langerhans Cells	
+CL_0000492	CD4+ T helper cell	A11.118.637.555.567.569.200.400	D006377	T-Lymphocytes, Helper-Inducer	
+CL_0000499	Stromal vascular fraction cell	A11.329.830	D017154	Stromal Cells	
+CL_0000501	Granulosa cell	A11.382.812	D006107	Granulosa Cells	
+CL_0000510	Paneth cell	A11.436.700	D019879	Paneth Cells	
+CL_0000513	Cardiovascular progenitor cell	A11.872.620.470	D032386	Myoblasts, Cardiac	
+CL_0000514	Quiescent satellite cell	D032390	D032390	Myoblasts, Smooth Muscle	
+CL_0000525	Syncytiotrophoblast	A11.382.992	D014327	Trophoblasts	
+CL_0000540	Neuron	A11.671	D009474	Neurons	
+CL_0000542	Lymphocyte	A11.118.637.555.567	D008214	Lymphocytes	
+CL_0000545	T helper1 (Th1) cell	A11.118.637.555.567.550.500.400.900	D018417	Th1 Cells	
+CL_0000546	T helper2 (Th2) cell	A11.118.637.555.567.550.500.400.905	D018418	Th2 Cells	
+CL_0000547	Proerythroblast	A11.148.378.590.837.250.200	D004900	Erythroblasts	
+CL_0000553	Megakaryocyte progenitor cell	A11.148.378.590.837.625	D055016	Megakaryocyte Progenitor Cells	
+CL_0000556	Megakaryocyte	A11.148.479	D008533	Megakaryocytes	
+CL_0000561	Amacrine cell	A11.671.650.850.500	D025042	Amacrine Cells	
+CL_0000576	Suppressive monocyte	A11.118.637.555.652	D009000	Monocytes	
+CL_0000577	Enterochromaffin cell	A11.382.625.031	D004759	Enterochromaffin Cells	
+CL_0000583	Alveolar macrophage	A11.329.372.600	D016676	Macrophages, Alveolar	
+CL_0000584	Enterocyte	A11.436.290	D020895	Enterocytes	
+CL_0000586	Retinoid acid signaling-responsive fetal germ cell	A05.360.490			
+CL_0000598	Pyramidal cell	A11.671.790	D017966	Pyramidal Cells	
+CL_0000617	GABAergic neuron	A11.671.285	D059330	GABAergic Neurons	
+CL_0000622	Serous acinar cell	A11.031	D061354	Acinar Cells	
+CL_0000623	Natural killer cell	A11.118.637.555.567.537	D007694	Killer Cells, Natural	
+CL_0000624	Exhausted CD4+ T cell	A11.118.637.555.567.569.200	D015496	CD4-Positive T-Lymphocytes	
+CL_0000625	Exhausted CD8+ T cell	A11.118.637.555.567.569.220	D018414	CD8-Positive T-Lymphocytes	
+CL_0000632	Ito cell (hepatic stellate cell)	A11.561	D055166	Hepatic Stellate Cells	
+CL_0000644	Bergmann glial cell	A08.637	D009457	Neuroglia	
+CL_0000646	Procr+ basal cell	A11.436	D004847	Epithelial Cells	
+CL_0000650	Mesangial cell	A11.329.228.950	D050527	Mesangial Cells	
+CL_0000653	Podocyte	A11.436.720	D050199	Podocytes	
+CL_0000669	Pericyte	A11.710	D020286	Pericytes	
+CL_0000670	Primordial germ cell				
+CL_0000679	Glutamatergic neuron	A11.671	D009474	Neurons	
+CL_0000681	Radial glial cell	A11.650.300	D063928	Ependymoglial Cells	
+CL_0000695	Cajal-Retzius cell				
+CL_0000696	PP cell	A11.382.625.900	D050418	Pancreatic Polypeptide-Secreting Cells	
+CL_0000700	Dopaminergic neuron	A11.671.270	D059290	Dopaminergic Neurons	
+CL_0000708	Leptomeningeal cell				
+CL_0000723	Unrestricted somatic stem cell	A11.872.700	D039904	Pluripotent Stem Cells	
+CL_0000738	White blood cell	A11.118.637	D007962	Leukocytes	
+CL_0000740	Retinal ganglion cell	A11.671.650.850.875	D012165	Retinal Ganglion Cells	
+CL_0000763	Myeloid cell	A11.627	D022423	Myeloid Cells	
+CL_0000765	Erythroblast	A11.148.378.590.837.250.200	D004900	Erythroblasts	
+CL_0000767	Basophil	A11.118.637.415.120	D001491	Basophils	
+CL_0000771	Eosinophil	A11.118.637.415.345	D004804	Eosinophils	
+CL_0000775	Stage II neutrophil	A11.118.637.415.583	D009504	Neutrophils	
+CL_0000782	Myeloid dendritic cell	A11.066.270	D003713	Dendritic Cells	
+CL_0000784	Plasmacytoid dendritic cell	A11.066.270	D003713	Dendritic Cells	
+CL_0000786	Plasma cell	A11.118.637.555.567.562.725	D010950	Plasma Cells	
+CL_0000787	Natural memory B cell	A11.118.637.555.567.550.450	D016175	B-Lymphocyte Subsets	
+CL_0000788	Naive B cell	A11.118.637.555.567.550.450	D016175	B-Lymphocyte Subsets	
+CL_0000792	FOXP3+ natural regulatory T (Treg) cell	A11.118.637.555.567.550.500.700	D050378	T-Lymphocytes, Regulatory	
+CL_0000794	CD8+ cytotoxic T killer cell	A11.118.637.555.567.550.500.200	D013602	T-Lymphocytes, Cytotoxic	
+CL_0000795	CD8+ regulatory T cell	A11.118.637.555.567.550.500.700	D050378	T-Lymphocytes, Regulatory	
+CL_0000813	Memory T cell	A11.118.637.555.567.569	D013601	T-Lymphocytes	
+CL_0000815	Thymus-derived regulatory T (Treg) cell	A11.118.637.555.567.550.500.700	D050378	T-Lymphocytes, Regulatory	
+CL_0000818	Transitional B cell	A11.118.637.555.567.562	D001402	B-Lymphocytes	
+CL_0000819	B1 cell	A11.118.637.555.567.550.450	D016175	B-Lymphocyte Subsets	
+CL_0000825	pro-Natural killer cell (pro-NK cell)	A11.118.637.555.567.537	D007694	Killer Cells, Natural	
+CL_0000831	Mast cell progenitor	A11.329.427	D008407	Mast Cells	
+CL_0000835	Myeloblast	A11.148.378.590.675.500	D042381	Granulocyte Precursor Cells	
+CL_0000837	Multipotent progenitor cell	A11.329.830.500	D059630	Mesenchymal Stem Cells	
+CL_0000839	Myeloid progenitor cell	A11.148.378.590	D023461	Myeloid Progenitor Cells	
+CL_0000843	Follicular B cell	A11.118.637.555.567.562	D001402	B-Lymphocytes	
+CL_0000844	Germinal center B cell	A11.118.637.555.567.562	D001402	B-Lymphocytes	
+CL_0000845	Marginal zone B cell	A11.118.637.555.567.562	D001402	B-Lymphocytes	
+CL_0000848	Immature olfactory sensory neuron	A11.671.650.915.500.540	D018034	Olfactory Receptor Neurons	
+CL_0000850	Serotonergic neuron	A11.671.895	D059326	Serotonergic Neurons	
+CL_0000855	Hair cell	A11.671.650.915.750.600.350	D006198	Hair Cells, Auditory	
+CL_0000860	Inflammatory monocyte	A11.118.637.555.652	D009000	Monocytes	
+CL_0000863	M1 macrophage	A11.627.482	D008264	Macrophages	
+CL_0000875	Non-classical monocyte	A11.118.637.555.652	D009000	Monocytes	
+CL_0000889	Myeloid-derived suppressor cell	A11.627.817	D000072737	Myeloid-Derived Suppressor Cells	
+CL_0000890	M2 macrophage	A11.627.482	D008264	Macrophages	
+CL_0000893	Thymocyte	A11.118.637.555.567.569.360.800	D060168	Thymocytes	
+CL_0000895	Naive CD8+ T cell	A11.118.637.555.567.569.220	D018414	CD8-Positive T-Lymphocytes	
+CL_0000897	CD4+ memory T cell	A11.118.637.555.567.569.200	D015496	CD4-Positive T-Lymphocytes	
+CL_0000898	Naive T cell	A11.118.637.555.567.569	D013601	T-Lymphocytes	
+CL_0000899	T helper17 (Th17) cell	A11.118.637.555.567.550.500.400.915	D058504	Th17 Cells	
+CL_0000902	Induced regulatory T (Treg) cell	A11.118.637.555.567.550.500.700	D050378	T-Lymphocytes, Regulatory	
+CL_0000903	Natural regulatory T (Treg) cell	A11.118.637.555.567.550.500.700	D050378	T-Lymphocytes, Regulatory	
+CL_0000905	Effector CD4+ memory T (Tem) cell	A11.118.637.555.567.550.500	D016176	T-Lymphocyte Subsets	
+CL_0000910	Cytotoxic T cell	A11.118.637.555.567.550.500.200	D013602	T-Lymphocytes, Cytotoxic	
+CL_0000911	Effector T cell	A11.118.637.555.567.550.500.400	D006377	T-Lymphocytes, Helper-Inducer	
+CL_0000912	T helper cell	A11.118.637.555.567.550.500.400	D006377	T-Lymphocytes, Helper-Inducer	
+CL_0000913	Effector CD8+ memory T (Tem) cell	A11.118.637.555.567.550.500	D016176	T-Lymphocyte Subsets	
+CL_0000934	CD4+ cytotoxic T cell	A11.118.637.555.567.550.500.200	D013602	T-Lymphocytes, Cytotoxic	
+CL_0000936	Lymphoid-primed multipotent progenitor	A11.148.378.294	D054503	Lymphoid Progenitor Cells	
+CL_0000940	Mucosal-associated invariant T cell	A11.118.637.555.567.550.500.100	D000072336	Mucosal-Associated Invariant T Cells	
+CL_0000958	T1 (Transitional) B cell	A11.118.637.555.567.562	D001402	B-Lymphocytes	
+CL_0000959	T2 (Transitional) B cell	A11.118.637.555.567.562	D001402	B-Lymphocytes	
+CL_0000969	Regulatory B cell	A11.118.637.555.567.550.450.300	D060151	B-Lymphocytes, Regulatory	
+CL_0000970	Non-switched memory B cell	A11.118.637.555.567.550.450	D016175	B-Lymphocyte Subsets	
+CL_0000972	Switched memory B cell	A11.118.637.555.567.550.450	D016175	B-Lymphocyte Subsets	
+CL_0000979	IgG memory B cell	A11.118.637.555.567.550.450	D016175	B-Lymphocyte Subsets	
+CL_0000980	Plasmablast	A11.118.637.555.567.550.450	D016175	B-Lymphocyte Subsets	
+CL_0000988	Hematopoietic cell	A11.872.378	D006412	Hematopoietic Stem Cells	
+CL_0000990	Conventional dendritic cell	A11.066.270	D003713	Dendritic Cells	
+CL_0001035	Osteogenic cell				
+CL_0001043	Activated CD4+ T cell	A11.118.637.555.567.569.200	D015496	CD4-Positive T-Lymphocytes	
+CL_0001056	Myeloid conventional dendritic cell	A11.066.270	D003713	Dendritic Cells	
+CL_0001064	Malignant mesothelioma cell				
+CL_0001065	Lymphoid cell	A11.118.637.555.567	D008214	Lymphocytes	
+CL_0001070	Beige fat cell	A11.329.114.125	D000069797	Adipocytes, Beige	
+CL_0002009	Dendritic cell progenitor				
+CL_0002031	Hematopoietic progenitor cell	A11.872.378	D006412	Hematopoietic Stem Cells	
+CL_0002034	Long-term hematopoietic stem cell	A11.872.378	D006412	Hematopoietic Stem Cells	
+CL_0002038	Follicular helper (Tfh) T cell	A11.118.637.555.567.550.500.400	D006377	T-Lymphocytes, Helper-Inducer	
+CL_0002057	CD14++CD16- monocyte	A11.118.637.555.652	D009000	Monocytes	
+CL_0002059	CD8a+ dendritic cell	A11.066.270	D003713	Dendritic Cells	
+CL_0002061	T helper9 (Th9) cell	A11.118.637.555.567.550.500.400	D006377	T-Lymphocytes, Helper-Inducer	
+CL_0002062	Type I pneumocyte	A11.436.081	D056809	Alveolar Epithelial Cells	
+CL_0002063	Type II pneumocyte	A11.436.081	D056809	Alveolar Epithelial Cells	
+CL_0002079	Pancreatic ductal cell	A11.436	D004847	Epithelial Cells	
+CL_0002138	Lymphatic endothelial cell	A11.436.275	D042783	Endothelial Cells	
+CL_0002139	Vascular endothelial cell	A11.436.275	D042783	Endothelial Cells	
+CL_0002148	Dental pulp cell				
+CL_0002168	Tympanic border cell				
+CL_0002195	Liver stem cell	A11.872	D013234	Stem Cells	
+CL_0002196	Oval cell				
+CL_0002204	Brush cell (Tuft cell)	A11.436	D004847	Epithelial Cells	
+CL_0002217	intermediate trophoblast cell	A11.382.992	D014327	Trophoblasts	
+CL_0002231	Late transit-amplifying prostate epithelial cell	A11.436	D004847	Epithelial Cells	
+CL_0002241	Myofibroblast	A11.329.228.975	D058628	Myofibroblasts	
+CL_0002248	Pluripotent stem cell	A11.872.700	D039904	Pluripotent Stem Cells	
+CL_0002275	Pancreatic polypeptide cell	A11.382.625.900	D050418	Pancreatic Polypeptide-Secreting Cells	
+CL_0002285	Type III taste bud cell	A11.671.650.915.500.800	D013650	Taste Buds	
+CL_0002292	Glomus cell	A11.436.690	D046569	Neuroepithelial Cells	
+CL_0002319	Neural cell	A11.671	D009474	Neurons	
+CL_0002321	Liver bud hepatic cell	A11.436.348	D022781	Hepatocytes	
+CL_0002322	Mesodermal embryonic stem cell	A11.872.700.250	D053595	Embryonic Stem Cells	
+CL_0002325	Differentiated alveolar cell	A11.436.081	D056809	Alveolar Epithelial Cells	
+CL_0002326	Luminal epithelial cell	A11.436	D004847	Epithelial Cells	
+CL_0002327	mammary gland epithelial cell	A11.436	D004847	Epithelial Cells	
+CL_0002334	Preadipocyte	A11.329.114	D017667	Adipocytes	
+CL_0002337	Bulge stem cell	A11.872	D013234	Stem Cells	
+CL_0002339	Prostate stem cell	A11.872	D013234	Stem Cells	
+CL_0002350	Endocardial cell	A11.436.275	D042783	Endothelial Cells	
+CL_0002355	Primitive erythroid cell	A11.443	D041905	Erythroid Cells	
+CL_0002371	Testis somatic cell				
+CL_0002372	Myotube	A11.620.249	D018485	Muscle Fibers, Skeletal	
+CL_0002393	Intermediate monocyte	A11.118.637.555.652	D009000	Monocytes	
+CL_0002394	CD141+CLEC9A+ dendritic cell	A11.066.270	D003713	Dendritic Cells	
+CL_0002397	CD14+CD16+ monocyte	A11.118.637.555.652	D009000	Monocytes	
+CL_0002418	Hemangioblast	A11.436.275.365	D055018	Hemangioblasts	
+CL_0002453	Oogenesis phase fetal germ cell				
+CL_0002481	Peritubular myoid cell				
+CL_0002495	Ventricular cardiomyocyte	A11.620.500	D032383	Myocytes, Cardiac	
+CL_0002503	Adventitial cell				
+CL_0002532	CD16+ dendritic cell	A11.066.270	D003713	Dendritic Cells	
+CL_0002536	Amnion epithelial cell	A11.436	D004847	Epithelial Cells	
+CL_0002546	Endothelial progenitor cell	A11.148.174	D066026	Endothelial Progenitor Cells	
+CL_0002551	Dermal fibroblast	A11.329.228	D005347	Fibroblasts	
+CL_0002559	Hair follicle cell				
+CL_0002564	Nucleus pulposus cell				
+CL_0002573	Schwann cell	A11.650.800	D012583	Schwann Cells	
+CL_0002586	Pigment epithelial cell	A11.436	D004847	Epithelial Cells	
+CL_0002623	Mucous acinar cell	A11.031	D061354	Acinar Cells	
+CL_0002672	Retinal progenitor cell				
+CL_0002677	Naive regulatory T (Treg) cell	A11.118.637.555.567.550.500.700	D050378	T-Lymphocytes, Regulatory	
+CL_0002681	Cortical cell				
+CL_0005006	Ionocyte cell				
+CL_0005026	Hepatoblast				
+CL_0008001	Hematopoietic precursor cell	A11.872.378	D006412	Hematopoietic Stem Cells	
+CL_0008019	Pdgfrapha+ cell				
+CL_0008020	Myogenic cell	A11.872.620.500.700	D032496	Satellite Cells, Skeletal Muscle	
+CL_0009002	Inflammatory cell				
+CL_0010001	Bone marrow stromal cell	A11.329.830.500	D059630	Mesenchymal Stem Cells	
+CL_0011005	Chandelier cell	A11.671.285	D059330	GABAergic Neurons	
+CL_0011012	Neural crest cell	A16.627	D009432	Neural Crest	Not a cell type
+CL_0011107	Muller cell	A11.650.300	D063928	Ependymoglial Cells	
+CL_0011113	Type II spiral ganglion neuron				
+CL_0011115	Precursor cell	A11.872	D013234	Stem Cells	
+CL_1000272	Airway secretory cell				
+CL_1000409	Sinoatrial node cell				
+CL_1000428	Epidermal stem cell	A11.872	D013234	Stem Cells	
+CL_1000504	Medullary cell	A11.436	D004847	Epithelial Cells	
+CL_1000507	Distal convoluted tubule cell	A11.436	D004847	Epithelial Cells	
+CL_1001225	Duct cell	A11.436	D004847	Epithelial Cells	
+CL_1001431	Collecting duct principal cell	A11.436	D004847	Epithelial Cells	
+CL_1001432	Collecting duct intercalated cell	A11.436	D004847	Epithelial Cells	
+CL_1001561	Vomeronasal sensory neuron	A11.671.650.915.500.540	D018034	Olfactory Receptor Neurons	
+CL_2000064	Ovarian surface epithelial cell	A11.436	D004847	Epithelial Cells	
+CL_2000075	Visceral endoderm cell				
+UBERON_0001083	Ventricular trabecular cell				
+UBERON_0003051	Ventral otocyst				
