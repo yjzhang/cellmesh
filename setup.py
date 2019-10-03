@@ -12,7 +12,7 @@ setup(
     packages=find_packages("."),
     # this is for including the data dir in the package.
     zip_safe=False,
-    package_data={'cellmesh': ['data/cellmesh.db', 'data/cellmesh_tfidf.db', 'data/cell_component_ids.txt', 'data/chromosome_ids.txt', 'data/*']},
+    package_data={'cellmesh': ['data/cellmesh.db', 'data/cellmesh_tfidf.db', 'data/cell_component_ids.txt', 'data/chromosome_ids.txt', 'data/*.txt']},
     include_package_data=True,
     classifiers=[
         'Development Status :: 3 - Alpha',
