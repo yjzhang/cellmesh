@@ -50,7 +50,12 @@ for tree_id, cell_id in tree_ids_dict.items():
                 direct_children_dict[cell_id_parent].add(cell_id)
                 direct_parents_dict[cell_id].add(cell_id_parent)
 import numpy as np
-np.savetxt('cellmesh/data/root_mesh_ids.txt', root_items, fmt='%s')
+root_item_names = []
+for cell_id in root_items:
+    cell_record = cell_dict[cell_id]
+    name = cell_record[2]
+    root_item_names.append(cell_id + '\t' + name)
+np.savetxt('cellmesh/data/root_mesh_id_names.txt', root_item_names, fmt='%s')
 
 # 2. open json file
 with open(os.path.join(path, 'CoCount_gene2pubmed_(homo_sapiens_protein_coding)_MeSH_anatomy.json')) as f:
