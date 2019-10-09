@@ -8,7 +8,7 @@ setup(
     author_email='yjzhang@cs.washington.edu',
     url='https://github.com/yjzhang/cellmesh',
     license='MIT',
-    install_requires=['backports.functools_lru_cache'],
+    install_requires=['backports.functools_lru_cache', 'goatools'],
     packages=find_packages("."),
     # this is for including the data dir in the package.
     zip_safe=False,
