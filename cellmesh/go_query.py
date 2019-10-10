@@ -43,7 +43,7 @@ def gene_set_query(genes, fdr_threshold=0.10, return_header=False):
             ns2assoc, # geneid/GO associations
             obodag, # Ontologies
             propagate_counts = False,
-            alpha = 0.05, # default significance cut-off
+            alpha = fdr_threshold, # default significance cut-off
             methods = ['fdr_bh']) # defult multipletest correction method
     genes = [x.capitalize() for x in genes]
     gene_ids = [symbols_to_ids[x] for x in genes if x in symbols_to_ids]
@@ -52,11 +52,12 @@ def gene_set_query(genes, fdr_threshold=0.10, return_header=False):
     results = goeaobj.run_study(gene_ids)
     results_sig = [r for r in results if r.p_fdr_bh < fdr_threshold]
     results_table = []
-    if return_header:
-        results_table = [['GO ID', 'Name', 'FDR', 'Overlapping Genes']]
     for r in results_sig:
         results_table.append([r.goterm.id, r.goterm.name, r.p_fdr_bh, [ids_to_symbols[gene_id] for gene_id in r.study_items]])
+    print(results_table)
     results_table.sort(key=lambda x: x[2])
-    print('results_table:', results_table)
+    if return_header:
+        results_table = [['GO ID', 'Name', 'FDR', 'Overlapping Genes']] + results_table
+    print('GO results_table:', results_table)
     return results_table
 

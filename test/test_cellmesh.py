@@ -85,6 +85,10 @@ class CellMeshTest(unittest.TestCase):
         for r in results:
             print(r)
 
+    def test_tree(self):
+        tree = cellmesh.get_cellmesh_anatomy_tree()
+        print(tree)
+
 
 if __name__ == '__main__':
     unittest.main()

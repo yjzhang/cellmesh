@@ -29,6 +29,20 @@ def get_all_genes(db_dir=DB_DIR):
     return [x[0] for x in results]
 
 @lru_cache(maxsize=None)
+def get_immediate_descendants(cell_type, db_dir=ANATOMY_DB_DIR):
+    """
+    Returns a list of cell IDs representing direct descendents of the given cell type.
+    """
+    conn = sqlite3.connect(db_dir)
+    C = conn.cursor()
+    C.execute('SELECT directChildren FROM cell_children WHERE cellID=?', (cell_type,))
+    results = C.fetchall()
+    r = results[0][0].split(',')
+    if len(r) == 1 and r[0] == '':
+        return []
+    return r
+
+@lru_cache(maxsize=None)
 def get_descendants(cell_types, db_dir=ANATOMY_DB_DIR):
     """
     cell_types has to be a tuple.
@@ -49,7 +63,7 @@ def get_descendants(cell_types, db_dir=ANATOMY_DB_DIR):
 def get_all_cell_id_names(db_dir=DB_DIR, include_cell_components=True, include_chromosomes=False, include_cell_lines=False,
         cell_type_subset=None):
     """
-    Returns a list of all unique cell ids + names
+    Returns a list of all unique cell ids + names - tuple (cell_id, cell_name)
 
     cell_type_subset is a tuple of mesh IDs.
     """
@@ -130,8 +144,7 @@ def get_cells_threshold(threshold=3, db_dir=DB_DIR, include_cell_components=True
     return [x for x in results if x[2] > threshold]
 
 def hypergeometric_test(genes, return_header=False, include_cell_components=False, include_chromosomes=False,
-        include_cell_lines=False, cell_type_subset=None, db_dir=DB_DIR):
-    # TODO: cell type subset - only include a subset of cell types
+        include_cell_lines=False, cell_type_subset=None, db_dir=DB_DIR, additional_table=None):
     """
     Uses a hypergeometric test to identify the most relevant cell types.
 
@@ -140,6 +153,8 @@ def hypergeometric_test(genes, return_header=False, include_cell_components=Fals
         return_header (bool): if True, returns a tuple as the first element.
         include_cell_components, include_chromosomes, include_cell_lines: booleans that should probably always be False.
         cell_type_subset (list or None): list of cell types to include, along with their descendants..
+        db_dir (str): either DB_DIR, ANATOMY_DIR
+        additional_table (DataFrame or None): table with cell types as columns and genes as names.
 
     Returns:
         list of 5-tuples: MeSH ID, cell name, p-value, overlapping genes, pmids, in order
@@ -287,3 +302,38 @@ def cellonto_to_cellmesh_single(name_or_id, data=None, is_name=True):
         return []
     else:
         return [(value[1], value[2]) for value in data_subset[['MeSH UID', 'MeSH Name(s)']].itertuples()]
+
+def get_cellmesh_anatomy_root_terms():
+    """
+    Returns a list of pairs (cellmesh_term, anatomy)
+    """
+    terms = []
+    with open(ROOT_MESH_ID_NAMES_DIR) as f:
+        for line in f.readlines():
+            data = line.split()
+            mesh_id = data[0]
+            mesh_name = ' '.join(data[1:])
+            terms.append((mesh_id, mesh_name))
+    return terms
+
+def get_cellmesh_anatomy_tree():
+    """
+    Returns a tree-structure: a dict of dicts...
+    """
+    root_terms = get_cellmesh_anatomy_root_terms()
+    all_term_ids = get_all_cell_id_names(db_dir=ANATOMY_DB_DIR, include_cell_components=True, include_chromosomes=True, include_cell_lines=True)
+    id_to_name = {x[0]: x[1] for x in all_term_ids}
+    print(id_to_name)
+    print(len(id_to_name))
+    tree = {}
+    to_visit = [(mesh_id, name, tree) for mesh_id, name in root_terms]
+    while to_visit:
+        mesh_id, name, parent = to_visit.pop()
+        descendants = get_immediate_descendants(mesh_id)
+        print(mesh_id, name, descendants)
+        if descendants:
+            sub_tree = {}
+            parent[mesh_id] = sub_tree
+            for descendant in descendants:
+                to_visit.append((descendant, id_to_name[descendant], sub_tree))
+    return tree, id_to_name
