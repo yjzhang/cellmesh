@@ -323,14 +323,11 @@ def get_cellmesh_anatomy_tree():
     root_terms = get_cellmesh_anatomy_root_terms()
     all_term_ids = get_all_cell_id_names(db_dir=ANATOMY_DB_DIR, include_cell_components=True, include_chromosomes=True, include_cell_lines=True)
     id_to_name = {x[0]: x[1] for x in all_term_ids}
-    print(id_to_name)
-    print(len(id_to_name))
     tree = {}
     to_visit = [(mesh_id, name, tree) for mesh_id, name in root_terms]
     while to_visit:
         mesh_id, name, parent = to_visit.pop()
         descendants = get_immediate_descendants(mesh_id)
-        print(mesh_id, name, descendants)
         if descendants:
             sub_tree = {}
             parent[mesh_id] = sub_tree
