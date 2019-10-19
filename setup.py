@@ -17,6 +17,7 @@ GZ_DB_FILES = ['cellmesh.db.gz', 'cellmesh_tfidf.db.gz', 'anatomy_mesh.db.gz']
 class DevelopWithGunzip(develop):
 
     def run(self):
+        print('unzipping db files')
         for f in GZ_DB_FILES:
             subprocess.run('gunzip {0}'.format(os.path.join(DB_PATH, f)), shell=True)
         develop.run(self)
@@ -25,6 +26,7 @@ class DevelopWithGunzip(develop):
 class InstallWithGunzip(install):
 
     def run(self):
+        print('unzipping db files')
         for f in GZ_DB_FILES:
             subprocess.run('gunzip {0}'.format(os.path.join(DB_PATH, f)), shell=True)
         install.run(self)

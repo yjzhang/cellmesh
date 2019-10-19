@@ -29,6 +29,9 @@ class CellMeshTest(unittest.TestCase):
         results = cellmesh.hypergeometric_test(genes)
         print(results[0])
         self.assertEqual(results[0][1], 'Myocytes, Smooth Muscle')
+
+    def test_cellmesh_query_species(self):
+        print('mouse_results')
         genes = ['HLA-DRB5',
                  'HLA-DQA1',
                  'HCG24',
@@ -40,7 +43,6 @@ class CellMeshTest(unittest.TestCase):
                  'LST1',
                  'HLA-DQB1',
                  'AIM1L']
-        print('mouse_results')
         results = cellmesh.hypergeometric_test(genes, species='mouse')
         print(results[0])
         genes = ['MYH11',
@@ -51,7 +53,9 @@ class CellMeshTest(unittest.TestCase):
         results = cellmesh.hypergeometric_test(genes, species='mouse')
         print(results[0])
         self.assertEqual(results[0][1], 'Myocytes, Smooth Muscle')
-
+        results = cellmesh.hypergeometric_test(genes, species='both')
+        print(results[0])
+        self.assertEqual(results[0][1], 'Myocytes, Smooth Muscle')
 
     def test_anatomy_query(self):
         genes = ['Tnnt2',

@@ -17,6 +17,7 @@ N_CELLS_THRESHOLD = 372
 TFIDF_THRESHOLD = 0.034154
 N_CELLS_THRESHOLD_TFIDF = 534
 SPECIES_MAP = {'mus_musculus': 10090, 'homo_sapiens': 9606, 'human': 9606, 'mouse': 10090, 'worm': 6239, 'c_elegans': 6239}
+BOTH_TAXIDS = [9606, 10090]
 
 def get_all_genes(db_dir=DB_DIR, species='human'):
     """
@@ -25,13 +26,19 @@ def get_all_genes(db_dir=DB_DIR, species='human'):
     conn = sqlite3.connect(db_dir)
     C = conn.cursor()
     if species == 'both':
-        pass
+        results = []
+        for taxid in BOTH_TAXIDS:
+            C.execute('SELECT DISTINCT gene FROM gene_info WHERE taxid=?', (taxid,))
+            results += C.fetchall()
+        conn.close()
+        results = list(set(x[0].upper() for x in results))
+        return results
     else:
         taxid = SPECIES_MAP[species]
         C.execute('SELECT DISTINCT gene FROM gene_info WHERE taxid=?', (taxid,))
-    results = C.fetchall()
-    conn.close()
-    return [x[0] for x in results]
+        results = C.fetchall()
+        conn.close()
+        return [x[0] for x in results]
 
 @lru_cache(maxsize=None)
 def get_immediate_descendants(cell_type, db_dir=ANATOMY_DB_DIR):
@@ -107,15 +114,29 @@ def get_cell_genes_pmids(cell, threshold=3, db_dir=DB_DIR, species='homo_sapiens
     C = conn.cursor()
     # TODO: deal with 'both'
     if species == 'both':
-        taxid = SPECIES_MAP['homo_sapiens']
+        # merge results by gene
+        gene_results = {}
+        for taxid in BOTH_TAXIDS:
+            C.execute('SELECT gene, pmids, count FROM cell_gene WHERE cellID=? AND taxid=?', (cell, taxid))
+            results = C.fetchall()
+            for gene, pmids, count in results:
+                gene = gene.upper()
+                if gene in gene_results:
+                    _, old_pmids, old_counts = gene_results[gene]
+                    gene_results[gene] = (gene, old_pmids + ',' + pmids, count + old_counts)
+                else:
+                    gene_results[gene] = (gene, pmids, count)
+        results = [x[:2] for x in gene_results.values() if x[2] > threshold]
+        conn.close()
+        return results
     else:
         taxid = SPECIES_MAP[species]
-    C.execute('SELECT gene, pmids, count FROM cell_gene WHERE cellID=? AND taxid=?', (cell, taxid))
-    results = C.fetchall()
-    #print(db_dir, cell, species, [x[2] for x in results])
-    results = [x[:2] for x in results if x[2] > threshold]
-    conn.close()
-    return results
+        C.execute('SELECT gene, pmids, count FROM cell_gene WHERE cellID=? AND taxid=?', (cell, taxid))
+        results = C.fetchall()
+        #print(db_dir, cell, species, [x[2] for x in results])
+        results = [x[:2] for x in results if x[2] > threshold]
+        conn.close()
+        return results
 
 @lru_cache(maxsize=None)
 def get_cell_genes_pmids_count(cell, threshold=3, db_dir=DB_DIR, species='homo_sapiens'):
@@ -127,14 +148,27 @@ def get_cell_genes_pmids_count(cell, threshold=3, db_dir=DB_DIR, species='homo_s
     C = conn.cursor()
     # TODO: deal with 'both'
     if species == 'both':
-        taxid = SPECIES_MAP['homo_sapiens']
+        # merge results by gene
+        gene_results = {}
+        for taxid in BOTH_TAXIDS:
+            C.execute('SELECT gene, pmids, count FROM cell_gene WHERE cellID=? AND taxid=?', (cell, taxid))
+            results = C.fetchall()
+            for gene, pmids, count in results:
+                gene = gene.upper()
+                if gene in gene_results:
+                    _, old_pmids, old_counts = gene_results[gene]
+                    gene_results[gene] = (gene, old_pmids + ',' + pmids, count + old_counts)
+        results = [x for x in gene_results.values() if x[2] > threshold]
+        conn.close()
+        return results
     else:
         taxid = SPECIES_MAP[species]
-    C.execute('SELECT gene, pmids, count FROM cell_gene WHERE cellID=? AND taxid=?', (cell, taxid))
-    results = C.fetchall()
-    results = [x for x in results if x[2] > threshold]
-    conn.close()
-    return results
+        C.execute('SELECT gene, pmids, count FROM cell_gene WHERE cellID=? AND taxid=?', (cell, taxid))
+        results = C.fetchall()
+        #print(db_dir, cell, species, [x[2] for x in results])
+        results = [x for x in results if x[2] > threshold]
+        conn.close()
+        return results
 
 @lru_cache(maxsize=None)
 def get_cells_threshold(threshold=3, db_dir=DB_DIR, include_cell_components=True, include_chromosomes=False, include_cell_lines=False):
