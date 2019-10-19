@@ -43,8 +43,8 @@ def gene_set_query(genes, fdr_threshold=0.10, return_header=False):
             ns2assoc, # geneid/GO associations
             obodag, # Ontologies
             propagate_counts = False,
-            alpha = fdr_threshold, # default significance cut-off
-            methods = ['fdr_bh']) # defult multipletest correction method
+            alpha=fdr_threshold, # default significance cut-off
+            methods=['fdr_bh']) # defult multipletest correction method
     genes = [x.capitalize() for x in genes]
     gene_ids = [symbols_to_ids[x] for x in genes if x in symbols_to_ids]
     print('gene_ids:', gene_ids)

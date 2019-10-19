@@ -30,10 +30,10 @@ c = conn.cursor()
 # create a table representing a cell type - gene mapping.
 try:
     # pmids is a comma-separated string of ints
-    c.execute('CREATE TABLE cell_gene(cellID text, gene text, count float, pmids text)')
+    c.execute('CREATE TABLE cell_gene(cellID text, gene text, count float, pmids text, taxid text)')
     # iterate over nonzero entries of corpus
     for i1, i2 in zip(*corpus.nonzero()):
-        count = corpus[i1, i2]
+        count = float(corpus[i1, i2])
         cell_record = cell_info[str(i1)]
         gene_record = gene_names.iloc[i2]
         cell = cell_record['id']
@@ -41,17 +41,18 @@ try:
         taxid = gene_record.taxid
         gene_id = gene_record.gene_id
         key = '{2},{0}:{1}'.format(gene_id, cell, taxid)
+        print(key, count)
         try:
             pubmed_record = gene2pubmed[key]
         except:
             print('key not found:', key)
             continue
         pmids = ','.join(pubmed_record['place'])
-        c.execute('INSERT INTO cell_gene VALUES (?, ?, ?, ?)', (cell, gene, count, pmids))
+        c.execute('INSERT INTO cell_gene VALUES (?, ?, ?, ?, ?)', (cell, gene, count, pmids, taxid))
 except Exception as e:
     print(str(e))
 try:
-    c.execute('CREATE INDEX cell_gene_id_index ON cell_gene(cellID)')
+    c.execute('CREATE INDEX cell_gene_id_index ON cell_gene(cellID, gene, taxid)')
 except:
     pass
 
@@ -72,17 +73,18 @@ except:
 
 # create a table representing a gene symbol - gene info mapping
 try:
-    c.execute('CREATE TABLE gene_info(gene text, geneID integer, totalCounts float)')
+    c.execute('CREATE TABLE gene_info(gene text, geneID integer, totalCounts float, taxid text)')
     for i in range(genes):
         gene_record = gene_names.iloc[i]
         gene = gene_record.gene_symbol
         gene_id = gene_record.gene_id
+        taxid = gene_record.taxid
         total_counts = gene_record[2]
-        c.execute('INSERT INTO gene_info VALUES (?, ?, ?)', (gene, gene_id, total_counts))
+        c.execute('INSERT INTO gene_info VALUES (?, ?, ?, ?)', (gene, gene_id, total_counts, taxid))
 except Exception as e:
     print(str(e))
 try:
-    c.execute('CREATE INDEX gene_info_id_index ON gene_info(gene)')
+    c.execute('CREATE INDEX gene_info_id_index ON gene_info(gene, taxid)')
 except:
     pass
 

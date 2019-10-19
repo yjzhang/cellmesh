@@ -14,6 +14,8 @@ cells, genes = corpus.shape
 with open('data/cell_info.json') as f:
     cell_info = json.load(f)
 
+# TODO: remove all mesh terms that are under "bad" categories" 
+
 # load gene names
 gene_names = pd.read_table('data/gene.dict.text', header=None)
 gene_names['taxid'], gene_names['gene_id'], gene_names['gene_symbol'] = gene_names[1].str.split(',').str
@@ -30,13 +32,14 @@ c = conn.cursor()
 # create a table representing a cell type - gene mapping.
 try:
     # pmids is a comma-separated string of ints
-    c.execute('CREATE TABLE cell_gene(cellID text, gene text, count integer, pmids text)')
+    c.execute('CREATE TABLE cell_gene(cellID text, gene text, count integer, pmids text, taxid text)')
     # iterate over nonzero entries of corpus
     for i1, i2 in zip(*corpus.nonzero()):
         count = corpus[i1, i2]
         cell_record = cell_info[str(i1)]
         gene_record = gene_names.iloc[i2]
         cell = cell_record['id']
+
         gene = gene_record.gene_symbol
         taxid = gene_record.taxid
         gene_id = gene_record.gene_id
@@ -52,11 +55,12 @@ try:
             print('count not correct: {0} vs {1}'.format(count, pubmed_record['cnt']))
             continue
         pmids = ','.join(pubmed_record['place'])
-        c.execute('INSERT INTO cell_gene VALUES (?, ?, ?, ?)', (cell, gene, count, pmids))
+        print(cell, gene, int(count), pmids, taxid)
+        c.execute('INSERT INTO cell_gene VALUES (?, ?, ?, ?, ?)', (cell, gene, int(count), pmids, taxid))
 except Exception as e:
     print(str(e))
 try:
-    c.execute('CREATE INDEX cell_gene_id_index ON cell_gene(cellID)')
+    c.execute('CREATE INDEX cell_gene_id_index ON cell_gene(cellID, gene, taxid)')
 except:
     pass
 
@@ -77,17 +81,18 @@ except:
 
 # create a table representing a gene symbol - gene info mapping
 try:
-    c.execute('CREATE TABLE gene_info(gene text, geneID integer, totalCounts integer)')
+    c.execute('CREATE TABLE gene_info(gene text, geneID integer, totalCounts integer, taxid text)')
     for i in range(genes):
         gene_record = gene_names.iloc[i]
         gene = gene_record.gene_symbol
         gene_id = gene_record.gene_id
+        taxid = gene_record.taxid
         total_counts = gene_record[2]
-        c.execute('INSERT INTO gene_info VALUES (?, ?, ?)', (gene, gene_id, total_counts))
+        c.execute('INSERT INTO gene_info VALUES (?, ?, ?, ?)', (gene, gene_id, total_counts, taxid))
 except Exception as e:
     print(str(e))
 try:
-    c.execute('CREATE INDEX gene_info_id_index ON gene_info(gene)')
+    c.execute('CREATE INDEX gene_info_id_index ON gene_info(gene, taxid)')
 except:
     pass
 

@@ -71,11 +71,11 @@ output_cursor = output_db.cursor()
 # create a table representing a MeSH ID - gene mapping.
 try:
     # pmids is a comma-separated string of ints
-    output_cursor.execute('CREATE TABLE cell_gene(cellID text, gene text, count integer, pmids text)')
+    output_cursor.execute('CREATE TABLE cell_gene(cellID text, gene text, count integer, pmids text, taxid text)')
     # iterate over nonzero entries of corpus
     for key, item in gene_mesh_pubmed.items():
         s1 = key.split(',')
-        species = s1[0]
+        taxid = s1[0]
         s2 = s1[1].split(':')
         gene_id, mesh_id = s2
 
@@ -89,13 +89,13 @@ try:
         total_counts_dict[gene] += count
         taxid = gene_record[1]
         pmids = ','.join(item['place'])
-        output_cursor.execute('INSERT INTO cell_gene VALUES (?, ?, ?, ?)', (cell_id, gene, count, pmids))
+        output_cursor.execute('INSERT INTO cell_gene VALUES (?, ?, ?, ?, ?)', (cell_id, gene, count, pmids, taxid))
 except Exception as e:
     text = traceback.format_exc()
     print(text)
 
 try:
-    output_cursor.execute('CREATE INDEX cell_gene_id_index ON cell_gene(cellID)')
+    output_cursor.execute('CREATE INDEX cell_gene_id_index ON cell_gene(cellID, gene, taxid)')
 except:
     pass
 
@@ -117,17 +117,18 @@ except:
 
 # create a table representing a gene symbol - gene info mapping
 try:
-    output_cursor.execute('CREATE TABLE gene_info(gene text, geneID integer, totalCounts integer)')
+    output_cursor.execute('CREATE TABLE gene_info(gene text, geneID integer, totalCounts integer, taxid text)')
     for i, gene_record in gene_dict.items():
         gene = gene_record[3]
-        gene_id = int(i)
+        gene_id = gene_record[2]
+        taxid = gene_record[1]
         total_counts = total_counts_dict[i]
-        output_cursor.execute('INSERT INTO gene_info VALUES (?, ?, ?)', (gene, gene_id, total_counts))
+        output_cursor.execute('INSERT INTO gene_info VALUES (?, ?, ?, ?)', (gene, gene_id, total_counts, taxid))
 except Exception as e:
     text = traceback.format_exc()
     print(text)
 try:
-    output_cursor.execute('CREATE INDEX gene_info_id_index ON gene_info(gene)')
+    output_cursor.execute('CREATE INDEX gene_info_id_index ON gene_info(gene, taxid)')
 except:
     pass
 

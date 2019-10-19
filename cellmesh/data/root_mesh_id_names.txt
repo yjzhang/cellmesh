@@ -1,21 +1,21 @@
-D004628	Embryonic Structures
-D006424	Hemic and Immune Systems
-D012137	Respiratory System
-D009141	Musculoskeletal System
-D004703	Endocrine System
-D013284	Stomatognathic System
-D056229	Fungal Structures
+D002477	Cells
+D056224	Viral Structures
 D034582	Integumentary System
 D056226	Bacterial Structures
-D018514	Plant Structures
-D004064	Digestive System
-D012679	Sense Organs
-D056224	Viral Structures
-D014566	Urogenital System
-D002319	Cardiovascular System
-D009420	Nervous System
-D005441	Fluids and Secretions
 D000825	Animal Structures
-D014024	Tissues
 D001829	Body Regions
-D002477	Cells
+D005441	Fluids and Secretions
+D004703	Endocrine System
+D014566	Urogenital System
+D013284	Stomatognathic System
+D014024	Tissues
+D012137	Respiratory System
+D009420	Nervous System
+D056229	Fungal Structures
+D006424	Hemic and Immune Systems
+D004064	Digestive System
+D009141	Musculoskeletal System
+D002319	Cardiovascular System
+D018514	Plant Structures
+D012679	Sense Organs
+D004628	Embryonic Structures

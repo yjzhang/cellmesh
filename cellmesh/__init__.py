@@ -16,14 +16,19 @@ ROOT_MESH_ID_NAMES_DIR = os.path.join(PATH, 'data', 'root_mesh_id_names.txt')
 N_CELLS_THRESHOLD = 372
 TFIDF_THRESHOLD = 0.034154
 N_CELLS_THRESHOLD_TFIDF = 534
+SPECIES_MAP = {'mus_musculus': 10090, 'homo_sapiens': 9606, 'human': 9606, 'mouse': 10090, 'worm': 6239, 'c_elegans': 6239}
 
-def get_all_genes(db_dir=DB_DIR):
+def get_all_genes(db_dir=DB_DIR, species='human'):
     """
     Returns a list of all unique gene symbols.
     """
     conn = sqlite3.connect(db_dir)
     C = conn.cursor()
-    C.execute('SELECT DISTINCT gene FROM gene_info')
+    if species == 'both':
+        pass
+    else:
+        taxid = SPECIES_MAP[species]
+        C.execute('SELECT DISTINCT gene FROM gene_info WHERE taxid=?', (taxid,))
     results = C.fetchall()
     conn.close()
     return [x[0] for x in results]
@@ -93,28 +98,39 @@ def get_all_cell_id_names(db_dir=DB_DIR, include_cell_components=True, include_c
     return results
 
 @lru_cache(maxsize=None)
-def get_cell_genes_pmids(cell, threshold=3, db_dir=DB_DIR):
+def get_cell_genes_pmids(cell, threshold=3, db_dir=DB_DIR, species='homo_sapiens'):
     """
     Given a cell ID, this returns a list of all genes associated with that cell.
     The threshold is the minimum count for the gene to be included.
     """
     conn = sqlite3.connect(db_dir)
     C = conn.cursor()
-    C.execute('SELECT gene, pmids, count FROM cell_gene WHERE cellID=?', (cell,))
+    # TODO: deal with 'both'
+    if species == 'both':
+        taxid = SPECIES_MAP['homo_sapiens']
+    else:
+        taxid = SPECIES_MAP[species]
+    C.execute('SELECT gene, pmids, count FROM cell_gene WHERE cellID=? AND taxid=?', (cell, taxid))
     results = C.fetchall()
+    #print(db_dir, cell, species, [x[2] for x in results])
     results = [x[:2] for x in results if x[2] > threshold]
     conn.close()
     return results
 
 @lru_cache(maxsize=None)
-def get_cell_genes_pmids_count(cell, threshold=3, db_dir=DB_DIR):
+def get_cell_genes_pmids_count(cell, threshold=3, db_dir=DB_DIR, species='homo_sapiens'):
     """
     Given a cell ID, this returns a list of all genes associated with that cell.
     The threshold is the minimum count for the gene to be included.
     """
     conn = sqlite3.connect(db_dir)
     C = conn.cursor()
-    C.execute('SELECT gene, pmids, count FROM cell_gene WHERE cellID=?', (cell,))
+    # TODO: deal with 'both'
+    if species == 'both':
+        taxid = SPECIES_MAP['homo_sapiens']
+    else:
+        taxid = SPECIES_MAP[species]
+    C.execute('SELECT gene, pmids, count FROM cell_gene WHERE cellID=? AND taxid=?', (cell, taxid))
     results = C.fetchall()
     results = [x for x in results if x[2] > threshold]
     conn.close()
@@ -144,7 +160,7 @@ def get_cells_threshold(threshold=3, db_dir=DB_DIR, include_cell_components=True
     return [x for x in results if x[2] > threshold]
 
 def hypergeometric_test(genes, return_header=False, include_cell_components=False, include_chromosomes=False,
-        include_cell_lines=False, cell_type_subset=None, db_dir=DB_DIR, additional_table=None):
+        include_cell_lines=False, cell_type_subset=None, db_dir=DB_DIR, additional_table=None, species='homo_sapiens'):
     """
     Uses a hypergeometric test to identify the most relevant cell types.
 
@@ -167,12 +183,12 @@ def hypergeometric_test(genes, return_header=False, include_cell_components=Fals
     all_cells = get_all_cell_id_names(include_cell_components=include_cell_components,
             include_chromosomes=include_chromosomes, include_cell_lines=include_cell_lines,
             db_dir=db_dir, cell_type_subset=cell_type_subset)
-    all_genes = get_all_genes(db_dir=db_dir)
+    all_genes = [x.upper() for x in get_all_genes(db_dir=db_dir, species=species)]
     cell_p_vals = {}
     genes = set(genes)
     # each cell should have 4 items: cell type, p-value, overlapping genes, PMIDs
     for cell_id, cell_name in all_cells:
-        genes_pmids = set(get_cell_genes_pmids(cell_id, db_dir=db_dir))
+        genes_pmids = set((x[0].upper(),) + x[1:] for x in get_cell_genes_pmids(cell_id, db_dir=db_dir, species=species))
         cell_genes = [x[0] for x in genes_pmids]
         overlapping_genes = genes.intersection(cell_genes)
         if len(overlapping_genes) == 0:

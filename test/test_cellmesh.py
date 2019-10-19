@@ -29,6 +29,29 @@ class CellMeshTest(unittest.TestCase):
         results = cellmesh.hypergeometric_test(genes)
         print(results[0])
         self.assertEqual(results[0][1], 'Myocytes, Smooth Muscle')
+        genes = ['HLA-DRB5',
+                 'HLA-DQA1',
+                 'HCG24',
+                 'ARHGEF1',
+                 'HLA-DPB1',
+                 'SCN4A',
+                 'TEAD2',
+                 'HLA-DRB1',
+                 'LST1',
+                 'HLA-DQB1',
+                 'AIM1L']
+        print('mouse_results')
+        results = cellmesh.hypergeometric_test(genes, species='mouse')
+        print(results[0])
+        genes = ['MYH11',
+                 'CNN1',
+                 'ACTA2',
+                 'MYL9',
+                 'OPTC']
+        results = cellmesh.hypergeometric_test(genes, species='mouse')
+        print(results[0])
+        self.assertEqual(results[0][1], 'Myocytes, Smooth Muscle')
+
 
     def test_anatomy_query(self):
         genes = ['Tnnt2',
@@ -46,8 +69,7 @@ class CellMeshTest(unittest.TestCase):
                  'Pgam2',
                  'Dcn']
         results = cellmesh.hypergeometric_test(genes, db_dir=cellmesh.ANATOMY_DB_DIR)
-        for r in results:
-            print(r)
+        print(results[0])
 
     def test_get_descendants(self):
         # brain
@@ -56,13 +78,13 @@ class CellMeshTest(unittest.TestCase):
         descendants = cellmesh.get_descendants(('D001921',))
         self.assertTrue(len(descendants) > 1)
         print('Brain descendants')
-        for d in descendants:
-            print(d, cell_id_names[d])
+        #for d in descendants:
+        #    print(d, cell_id_names[d])
         descendants = cellmesh.get_descendants(('D001921', 'D008168'))
         self.assertTrue(len(descendants) > 2)
         print('Brain + Lung descendants')
-        for d in descendants:
-            print(d, cell_id_names[d])
+        #for d in descendants:
+        #    print(d, cell_id_names[d])
 
     def test_go_query(self):
         from cellmesh import go_query
@@ -82,8 +104,7 @@ class CellMeshTest(unittest.TestCase):
                  'Dcn']
         results = go_query.gene_set_query(genes, return_header=False)
         self.assertTrue(len(results) > 0)
-        for r in results:
-            print(r)
+        print(results[0])
 
     def test_tree(self):
         tree = cellmesh.get_cellmesh_anatomy_tree()
