@@ -8,7 +8,13 @@ from scipy.io import mmread
 # load corpus
 corpus = mmread('data/corpus.mm')
 corpus = sparse.csr_matrix(corpus)
+corpus_data = corpus.toarray()
 cells, genes = corpus.shape
+# TODO: create a tf-idf matrix from corpus.mm
+# each cell is like a document, each gene is like a word
+from sklearn.feature_extraction.text import TfidfTransformer
+tfidf = TfidfTransformer()
+data_tfidf = tfidf.fit_transform(corpus).toarray()
 
 # load cell types
 with open('data/cell_info.json') as f:
@@ -32,10 +38,10 @@ c = conn.cursor()
 # create a table representing a cell type - gene mapping.
 try:
     # pmids is a comma-separated string of ints
-    c.execute('CREATE TABLE cell_gene(cellID text, gene text, count integer, pmids text, taxid text)')
+    c.execute('CREATE TABLE cell_gene(cellID text, gene text, count integer, tfidf real, pmids text, taxid text)')
     # iterate over nonzero entries of corpus
     for i1, i2 in zip(*corpus.nonzero()):
-        count = corpus[i1, i2]
+        count = corpus_data[i1, i2]
         cell_record = cell_info[str(i1)]
         gene_record = gene_names.iloc[i2]
         cell = cell_record['id']
@@ -55,8 +61,9 @@ try:
             print('count not correct: {0} vs {1}'.format(count, pubmed_record['cnt']))
             continue
         pmids = ','.join(pubmed_record['place'])
-        print(cell, gene, int(count), pmids, taxid)
-        c.execute('INSERT INTO cell_gene VALUES (?, ?, ?, ?, ?)', (cell, gene, int(count), pmids, taxid))
+        tfidf_val = data_tfidf[i1, i2]
+        #print(cell, gene, int(count), tfidf_val, pmids, taxid)
+        c.execute('INSERT INTO cell_gene VALUES (?, ?, ?, ?, ?, ?)', (cell, gene, int(count), tfidf_val, pmids, taxid))
 except Exception as e:
     print(str(e))
 try:

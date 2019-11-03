@@ -4,7 +4,7 @@ import sqlite3
 import os
 
 import traceback
-
+"""
 path = 'data_mouse'
 
 # 1. open db
@@ -23,7 +23,31 @@ with open(os.path.join(path, 'CoCount_gene2pubmed_(Mus_musculus_protein_coding)_
     gene_mesh_pubmed = json.load(f)
 
 # dict of gene id : total count
+# calculate tf-idf
+# create count matrix of terms x genes
+import numpy as np
+data_dict = np.zeros((len(cell_list), len(gene_list)))
 total_counts_dict = Counter()
+for key, item in gene_mesh_pubmed.items():
+    s1 = key.split(',')
+    taxid = s1[0]
+    s2 = s1[1].split(':')
+    gene_id, mesh_id = s2
+
+    count = item['cnt']
+
+    cell_record = cell_dict[mesh_id]
+    gene_record = gene_dict[gene_id]
+    cell_id = cell_record[1]
+
+    gene = gene_record[3]
+    total_counts_dict[gene] += count
+    data_dict[cell_dict[cell_id][0], gene_dict[gene_id][0]] += count
+from sklearn.feature_extraction.text import TfidfTransformer
+tfidf = TfidfTransformer()
+data_tfidf = tfidf.fit_transform(data_dict).toarray()
+
+
 
 # 3. create new db
 output_db = sqlite3.connect('cellmesh/data/cellmesh.db')
@@ -47,10 +71,10 @@ try:
         cell_id = cell_record[1]
 
         gene = gene_record[3]
-        total_counts_dict[gene] += count
         taxid = gene_record[1]
         pmids = ','.join(item['place'])
-        output_cursor.execute('INSERT INTO cell_gene VALUES (?, ?, ?, ?, ?)', (cell_id, gene, count, pmids, taxid))
+        tfidf_val = data_tfidf[cell_dict[cell_id][0], gene_dict[gene_id][0]]
+        output_cursor.execute('INSERT INTO cell_gene VALUES (?, ?, ?, ?, ?, ?)', (cell_id, gene, count, tfidf_val, pmids, taxid))
 except Exception as e:
     text = traceback.format_exc()
     print(text)
@@ -74,9 +98,8 @@ output_cursor.execute('VACUUM')
 
 output_db.commit()
 output_db.close()
-
-##################################################################################3
 """
+##################################################################################3
 # add data to cellmesh-anatomy db
 
 path = 'data_mouse/anatomy'
@@ -93,12 +116,31 @@ cell_list = cursor_db.fetchall()
 cell_dict = {x[1]: x for x in cell_list}
 # 2. open json file
 
-# dict of gene id : total count
-total_counts_dict = Counter()
-
-
 with open(os.path.join(path, 'CoCount_gene2pubmed_(Mus_musculus_protein_coding)_MeSH_anatomy.json')) as f:
     gene_mesh_pubmed = json.load(f)
+
+# calculate tf-idf
+# create count matrix of terms x genes
+import numpy as np
+data_dict = np.zeros((len(cell_list), len(gene_list)))
+# dict of gene id : total count
+total_counts_dict = Counter()
+for key, item in gene_mesh_pubmed.items():
+    s1 = key.split(',')
+    taxid = s1[0]
+    s2 = s1[1].split(':')
+    gene_id, mesh_id = s2
+    count = item['cnt']
+    cell_record = cell_dict[mesh_id]
+    gene_record = gene_dict[gene_id]
+    cell_id = cell_record[1]
+    gene = gene_record[3]
+    total_counts_dict[gene] += count
+    data_dict[cell_dict[cell_id][0], gene_dict[gene_id][0]] += count
+from sklearn.feature_extraction.text import TfidfTransformer
+tfidf = TfidfTransformer()
+data_tfidf = tfidf.fit_transform(data_dict).toarray()
+
 
 output_db = sqlite3.connect('cellmesh/data/anatomy_mesh.db')
 output_cursor = output_db.cursor()
@@ -121,10 +163,10 @@ try:
         cell_id = cell_record[1]
 
         gene = gene_record[3]
-        total_counts_dict[gene] += count
         taxid = gene_record[1]
         pmids = ','.join(item['place'])
-        output_cursor.execute('INSERT INTO cell_gene VALUES (?, ?, ?, ?, ?)', (cell_id, gene, count, pmids, taxid))
+        tfidf_val = data_tfidf[cell_dict[cell_id][0], gene_dict[gene_id][0]]
+        output_cursor.execute('INSERT INTO cell_gene VALUES (?, ?, ?, ?, ?, ?)', (cell_id, gene, count, tfidf_val, pmids, taxid))
 except Exception as e:
     text = traceback.format_exc()
     print(text)
@@ -146,6 +188,5 @@ except Exception as e:
 
 output_db.commit()
 output_db.close()
-"""
 
 

@@ -61,8 +61,29 @@ np.savetxt('cellmesh/data/root_mesh_id_names.txt', root_item_names, fmt='%s')
 with open(os.path.join(path, 'CoCount_gene2pubmed_(homo_sapiens_protein_coding)_MeSH_anatomy.json')) as f:
     gene_mesh_pubmed = json.load(f)
 
-# dict of gene id : total count
+# calculate tf-idf
+# create count matrix of terms x genes
+import numpy as np
+data_dict = np.zeros((len(cell_list), len(gene_list)))
 total_counts_dict = Counter()
+for key, item in gene_mesh_pubmed.items():
+    s1 = key.split(',')
+    taxid = s1[0]
+    s2 = s1[1].split(':')
+    gene_id, mesh_id = s2
+
+    count = item['cnt']
+
+    cell_record = cell_dict[mesh_id]
+    gene_record = gene_dict[gene_id]
+    cell_id = cell_record[1]
+
+    gene = gene_record[3]
+    total_counts_dict[gene] += count
+    data_dict[cell_dict[cell_id][0], gene_dict[gene_id][0]] += count
+from sklearn.feature_extraction.text import TfidfTransformer
+tfidf = TfidfTransformer()
+data_tfidf = tfidf.fit_transform(data_dict).toarray()
 
 # 3. create new db
 output_db = sqlite3.connect('cellmesh/data/anatomy_mesh.db')
@@ -71,7 +92,7 @@ output_cursor = output_db.cursor()
 # create a table representing a MeSH ID - gene mapping.
 try:
     # pmids is a comma-separated string of ints
-    output_cursor.execute('CREATE TABLE cell_gene(cellID text, gene text, count integer, pmids text, taxid text)')
+    output_cursor.execute('CREATE TABLE cell_gene(cellID text, gene text, count integer, tfidf real, pmids text, taxid text)')
     # iterate over nonzero entries of corpus
     for key, item in gene_mesh_pubmed.items():
         s1 = key.split(',')
@@ -86,10 +107,10 @@ try:
         cell_id = cell_record[1]
 
         gene = gene_record[3]
-        total_counts_dict[gene] += count
         taxid = gene_record[1]
         pmids = ','.join(item['place'])
-        output_cursor.execute('INSERT INTO cell_gene VALUES (?, ?, ?, ?, ?)', (cell_id, gene, count, pmids, taxid))
+        tfidf_val = float(data_tfidf[cell_dict[cell_id][0], gene_dict[gene_id][0]])
+        output_cursor.execute('INSERT INTO cell_gene VALUES (?, ?, ?, ?, ?, ?)', (cell_id, gene, count, tfidf_val, pmids, taxid))
 except Exception as e:
     text = traceback.format_exc()
     print(text)

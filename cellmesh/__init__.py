@@ -15,11 +15,15 @@ ROOT_MESH_ID_NAMES_DIR = os.path.join(PATH, 'data', 'root_mesh_id_names.txt')
 # number of cell types that pass the threshold
 N_CELLS_THRESHOLD = 372
 TFIDF_THRESHOLD = 0.034154
+COUNT_THRESHOLD = 3
 N_CELLS_THRESHOLD_TFIDF = 534
 SPECIES_MAP = {'mus_musculus': 10090, 'homo_sapiens': 9606, 'human': 9606, 'mouse': 10090, 'worm': 6239, 'c_elegans': 6239}
+SPECIES_TFIDF_THRESHOLDS = {'mus_musculus': 0.03856, 'mouse': 0.03856, 'homo_sapiens': 0.03342, 'human': 0.03342, 'worm': 0, 'c_elegans': 0}
+SPECIES_TFIDF_THRESHOLDS_ANATOMY = {'mus_musculus': 0.04891, 'mouse': 0.04891, 'homo_sapiens': 0.04911, 'human': 0.04911, 'worm': 0, 'c_elegans': 0}
 BOTH_TAXIDS = [9606, 10090]
 
-def get_all_genes(db_dir=DB_DIR, species='human'):
+@lru_cache(maxsize=None)
+def get_all_genes(db_dir=DB_DIR, species='human', uppercase_names=True):
     """
     Returns a list of all unique gene symbols.
     """
@@ -31,14 +35,20 @@ def get_all_genes(db_dir=DB_DIR, species='human'):
             C.execute('SELECT DISTINCT gene FROM gene_info WHERE taxid=?', (taxid,))
             results += C.fetchall()
         conn.close()
-        results = list(set(x[0].upper() for x in results))
+        if uppercase_names:
+            results = list(set(x[0].upper() for x in results))
+        else:
+            results = list(set(x[0] for x in results))
         return results
     else:
         taxid = SPECIES_MAP[species]
         C.execute('SELECT DISTINCT gene FROM gene_info WHERE taxid=?', (taxid,))
         results = C.fetchall()
         conn.close()
-        return [x[0] for x in results]
+        if uppercase_names:
+            return [x[0].upper() for x in results]
+        else:
+            return [x[0] for x in results]
 
 @lru_cache(maxsize=None)
 def get_immediate_descendants(cell_type, db_dir=ANATOMY_DB_DIR):
@@ -105,7 +115,8 @@ def get_all_cell_id_names(db_dir=DB_DIR, include_cell_components=True, include_c
     return results
 
 @lru_cache(maxsize=None)
-def get_cell_genes_pmids(cell, threshold=3, db_dir=DB_DIR, species='homo_sapiens'):
+def get_cell_genes_pmids(cell, threshold=3, db_dir=DB_DIR, species='homo_sapiens', return_count=False, use_tfidf=False,
+        uppercase_gene_names=True):
     """
     Given a cell ID, this returns a list of all genes associated with that cell.
     The threshold is the minimum count for the gene to be included.
@@ -113,11 +124,19 @@ def get_cell_genes_pmids(cell, threshold=3, db_dir=DB_DIR, species='homo_sapiens
     conn = sqlite3.connect(db_dir)
     C = conn.cursor()
     # TODO: deal with 'both'
+    statement = 'SELECT gene, pmids, count FROM cell_gene WHERE cellID=? AND taxid=?'
+    if use_tfidf:
+        statement = 'SELECT gene, pmids, tfidf FROM cell_gene WHERE cellID=? AND taxid=?'
+        if threshold == 3:
+            if db_dir == DB_DIR:
+                threshold == SPECIES_TFIDF_THRESHOLDS[species]
+            elif db_dir == ANATOMY_DB_DIR:
+                threshold == SPECIES_TFIDF_THRESHOLDS_ANATOMY[species]
     if species == 'both':
         # merge results by gene
         gene_results = {}
         for taxid in BOTH_TAXIDS:
-            C.execute('SELECT gene, pmids, count FROM cell_gene WHERE cellID=? AND taxid=?', (cell, taxid))
+            C.execute(statement, (cell, taxid))
             results = C.fetchall()
             for gene, pmids, count in results:
                 gene = gene.upper()
@@ -126,75 +145,23 @@ def get_cell_genes_pmids(cell, threshold=3, db_dir=DB_DIR, species='homo_sapiens
                     gene_results[gene] = (gene, old_pmids + ',' + pmids, count + old_counts)
                 else:
                     gene_results[gene] = (gene, pmids, count)
-        results = [x[:2] for x in gene_results.values() if x[2] > threshold]
-        conn.close()
-        return results
-    else:
-        taxid = SPECIES_MAP[species]
-        C.execute('SELECT gene, pmids, count FROM cell_gene WHERE cellID=? AND taxid=?', (cell, taxid))
-        results = C.fetchall()
-        #print(db_dir, cell, species, [x[2] for x in results])
-        results = [x[:2] for x in results if x[2] > threshold]
-        conn.close()
-        return results
-
-@lru_cache(maxsize=None)
-def get_cell_genes_pmids_count(cell, threshold=3, db_dir=DB_DIR, species='homo_sapiens'):
-    """
-    Given a cell ID, this returns a list of all genes associated with that cell.
-    The threshold is the minimum count for the gene to be included.
-    """
-    conn = sqlite3.connect(db_dir)
-    C = conn.cursor()
-    # TODO: deal with 'both'
-    if species == 'both':
-        # merge results by gene
-        gene_results = {}
-        for taxid in BOTH_TAXIDS:
-            C.execute('SELECT gene, pmids, count FROM cell_gene WHERE cellID=? AND taxid=?', (cell, taxid))
-            results = C.fetchall()
-            for gene, pmids, count in results:
-                gene = gene.upper()
-                if gene in gene_results:
-                    _, old_pmids, old_counts = gene_results[gene]
-                    gene_results[gene] = (gene, old_pmids + ',' + pmids, count + old_counts)
         results = [x for x in gene_results.values() if x[2] > threshold]
-        conn.close()
-        return results
     else:
         taxid = SPECIES_MAP[species]
-        C.execute('SELECT gene, pmids, count FROM cell_gene WHERE cellID=? AND taxid=?', (cell, taxid))
+        C.execute(statement, (cell, taxid))
         results = C.fetchall()
-        #print(db_dir, cell, species, [x[2] for x in results])
         results = [x for x in results if x[2] > threshold]
-        conn.close()
-        return results
+    conn.close()
+    if uppercase_gene_names:
+        results = [(x[0].upper(),) + x[1:] for x in results]
+    if not return_count:
+        results = [x[:2] for x in results]
+    return results
 
-@lru_cache(maxsize=None)
-def get_cells_threshold(threshold=3, db_dir=DB_DIR, include_cell_components=True, include_chromosomes=False, include_cell_lines=False):
-    """
-    Returns a list of all cell types with their max citation count, as a tuple of (cellID, cellName, count).
-    """
-    conn = sqlite3.connect(db_dir)
-    C = conn.cursor()
-    C.execute('SELECT DISTINCT cell_name.cellID, cellName, MAX(count) FROM cell_name INNER JOIN cell_gene ON cell_name.cellID = cell_gene.cellID GROUP BY cell_name.cellID;')
-    results = C.fetchall()
-    if not include_cell_components:
-        with open(os.path.join(PATH, 'data', 'cell_component_ids.txt')) as f:
-            cell_components = set(x.strip() for x in f.readlines())
-            results = [x for x in results if x[0] not in cell_components]
-    if not include_chromosomes:
-        with open(os.path.join(PATH, 'data', 'chromosome_ids.txt')) as f:
-            chromosomes = set(x.strip() for x in f.readlines())
-            results = [x for x in results if x[0] not in chromosomes]
-    if not include_cell_lines:
-        with open(os.path.join(PATH, 'data', 'cell_line_ids.txt')) as f:
-            cell_lines = set(x.strip() for x in f.readlines())
-            results = [x for x in results if x[0] not in cell_lines]
-    return [x for x in results if x[2] > threshold]
 
 def hypergeometric_test(genes, return_header=False, include_cell_components=False, include_chromosomes=False,
-        include_cell_lines=False, cell_type_subset=None, db_dir=DB_DIR, additional_table=None, species='homo_sapiens'):
+        include_cell_lines=False, cell_type_subset=None, db_dir=DB_DIR, additional_table=None, species='homo_sapiens',
+        use_tfidf=False):
     """
     Uses a hypergeometric test to identify the most relevant cell types.
 
@@ -211,18 +178,20 @@ def hypergeometric_test(genes, return_header=False, include_cell_components=Fals
         of ascending p-value.
     """
     from scipy import stats
+    # both query genes and database genes are converted to upper case.
     genes = [x.upper() for x in genes]
     if isinstance(cell_type_subset, list):
         cell_type_subset = tuple(cell_type_subset)
     all_cells = get_all_cell_id_names(include_cell_components=include_cell_components,
             include_chromosomes=include_chromosomes, include_cell_lines=include_cell_lines,
             db_dir=db_dir, cell_type_subset=cell_type_subset)
-    all_genes = [x.upper() for x in get_all_genes(db_dir=db_dir, species=species)]
+    all_genes = get_all_genes(db_dir=db_dir, species=species, uppercase_names=True)
     cell_p_vals = {}
     genes = set(genes)
     # each cell should have 4 items: cell type, p-value, overlapping genes, PMIDs
     for cell_id, cell_name in all_cells:
-        genes_pmids = set((x[0].upper(),) + x[1:] for x in get_cell_genes_pmids(cell_id, db_dir=db_dir, species=species))
+        genes_pmids = set(get_cell_genes_pmids(cell_id, db_dir=db_dir, species=species,
+            use_tfidf=use_tfidf, return_count=False, uppercase_gene_names=True))
         cell_genes = [x[0] for x in genes_pmids]
         overlapping_genes = genes.intersection(cell_genes)
         if len(overlapping_genes) == 0:
@@ -244,7 +213,7 @@ def hypergeometric_test(genes, return_header=False, include_cell_components=Fals
         cell_p_vals = [header] + cell_p_vals
     return cell_p_vals
 
-def normed_hypergeometric_test(genes, return_header=False, include_cell_components=False, include_chromosomes=False, include_cell_lines=False):
+def normed_hypergeometric_test(genes, **kwargs):
     """
     This hypergeometric test is on the tf-idf matrix, with a calibrated threshold.
 
@@ -252,34 +221,7 @@ def normed_hypergeometric_test(genes, return_header=False, include_cell_componen
         list of 5-tuples: MeSH ID, cell name, p-value, overlapping genes, pmids, in order
         of ascending p-value.
     """
-    from scipy import stats
-    all_cells = get_all_cell_id_names(db_dir=DB_TFIDF_DIR, include_cell_components=include_cell_components, include_chromosomes=include_chromosomes, include_cell_lines=include_cell_lines)
-    all_genes = get_all_genes(db_dir=DB_TFIDF_DIR)
-    cell_p_vals = {}
-    genes = set(genes)
-    # each cell should have 4 items: cell type, p-value, overlapping genes, PMIDs
-    for cell_id, cell_name in all_cells:
-        genes_pmids = set(get_cell_genes_pmids(cell_id, db_dir=DB_TFIDF_DIR, threshold=0.034154))
-        cell_genes = [x[0] for x in genes_pmids]
-        overlapping_genes = genes.intersection(cell_genes)
-        if len(overlapping_genes) == 0:
-            continue
-        pmids = {}
-        for gene, pmid in genes_pmids:
-            if gene in overlapping_genes:
-                pmids[gene] = pmid.split(',')
-        k = len(overlapping_genes)
-        pv = stats.hypergeom.cdf(k - 1, len(all_genes), len(cell_genes), len(genes))
-        overlapping_genes = list(overlapping_genes)
-        cell_p_vals[cell_id] = (cell_name, 1 - pv, overlapping_genes, pmids)
-    cell_p_vals = list(cell_p_vals.items())
-    cell_p_vals.sort(key=lambda x: x[1][1])
-    # merge items
-    cell_p_vals = [(x[0],) + x[1] for x in cell_p_vals]
-    if return_header:
-        header = ['MeSH ID', 'Cell Name', 'P-value', 'Overlapping Genes', 'PMIDs']
-        cell_p_vals = [header] + cell_p_vals
-    return cell_p_vals
+    return hypergeometric_test(genes, use_tfidf=True, **kwargs)
 
 
 # TODO: what is a more sophisticated test that accounts for the same genes being present in many different cell types?

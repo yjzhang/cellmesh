@@ -4,10 +4,10 @@ import multiprocessing
 from math import pow
 
 from cellmesh import \
-  DB_TFIDF_DIR,\
+  DB_DIR,\
   get_all_cell_id_names, \
   get_all_genes, \
-  get_cell_genes_pmids_count
+  get_cell_genes_pmids
 
 def calc_cell_gene_ranks(cell_gene_count, all_genes):
   '''
@@ -86,7 +86,8 @@ def gsva_ext_test_default_params():
   params["tau"] = 1
   return params
 
-def gsva_ext_test(genes, return_header=False, include_cell_components=False, include_chromosomes=False, params=None):
+def gsva_ext_test(genes, return_header=False, include_cell_components=False, include_chromosomes=False, params=None,
+        species='homo_sapiens', db_dir=DB_DIR):
   '''
   This is the GSVA ext (aka modified) query test on the tf-idf matrix
     the function is modified so that it has similar I/O structure as normed_hypergeometric_test
@@ -113,8 +114,8 @@ def gsva_ext_test(genes, return_header=False, include_cell_components=False, inc
   '''
 
   all_cells = get_all_cell_id_names(
-    db_dir=DB_TFIDF_DIR, include_cell_components=include_cell_components, include_chromosomes=include_chromosomes)
-  all_genes = get_all_genes(db_dir=DB_TFIDF_DIR)
+    db_dir=db_dir, include_cell_components=include_cell_components, include_chromosomes=include_chromosomes)
+  all_genes = get_all_genes(db_dir=db_dir, species=species)
   all_genes = set(all_genes)
 
   genes_set = set(genes)
@@ -128,7 +129,8 @@ def gsva_ext_test(genes, return_header=False, include_cell_components=False, inc
   args_list = []
   for cell_id, cell_name in all_cells:
     #a set of (gene_symbol, its pmids connected by ",", cnt val) wrt candidate cell_id
-    genes_pmids_count = set(get_cell_genes_pmids_count(cell_id, db_dir=DB_TFIDF_DIR, threshold=params["db_cnt_thre"]))
+    genes_pmids_count = set(get_cell_genes_pmids(cell_id, db_dir=db_dir, threshold=params["db_cnt_thre"],
+        species=species, return_count=True))
     cell_genes = [x[0] for x in genes_pmids_count]
     overlapping_genes = genes_set.intersection(cell_genes)
     if len(overlapping_genes) == 0:

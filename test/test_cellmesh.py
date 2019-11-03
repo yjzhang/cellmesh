@@ -57,6 +57,19 @@ class CellMeshTest(unittest.TestCase):
         print(results[0])
         self.assertEqual(results[0][1], 'Myocytes, Smooth Muscle')
 
+    def test_cellmesh_prob_method(self):
+        print('test_cellmesh_prob_method')
+        from cellmesh import prob_method
+        genes = ['MYH11',
+                 'CNN1',
+                 'ACTA2']
+        results = prob_method.prob_test(genes, species='mouse')
+        print(results[:3])
+        self.assertEqual(results[0][1], 'Myocytes, Smooth Muscle')
+        results = prob_method.prob_test(genes, species='both')
+        print(results[:3])
+        self.assertEqual(results[0][1], 'Myocytes, Smooth Muscle')
+
     def test_anatomy_query(self):
         genes = ['Tnnt2',
                  'Ifit1',
@@ -74,6 +87,22 @@ class CellMeshTest(unittest.TestCase):
                  'Dcn']
         results = cellmesh.hypergeometric_test(genes, db_dir=cellmesh.ANATOMY_DB_DIR)
         print(results[0])
+
+    def test_cellmesh_prob_method_anatomy(self):
+        print('test_cellmesh_prob_method_anatomy')
+        from cellmesh import prob_method
+        genes = ['MYH11',
+                 'CNN1',
+                 'ACTA2']
+        results = prob_method.prob_test(genes, species='human', db_dir=cellmesh.ANATOMY_DB_DIR)
+        print(results[:3])
+        results = prob_method.prob_test(genes, species='mouse', db_dir=cellmesh.ANATOMY_DB_DIR)
+        print(results[:3])
+        #self.assertEqual(results[0][1], 'Myocytes, Smooth Muscle')
+        results = prob_method.prob_test(genes, species='both', db_dir=cellmesh.ANATOMY_DB_DIR)
+        print(results[:3])
+        #self.assertEqual(results[0][1], 'Myocytes, Smooth Muscle')
+
 
     def test_get_descendants(self):
         # brain
@@ -112,7 +141,7 @@ class CellMeshTest(unittest.TestCase):
 
     def test_tree(self):
         tree = cellmesh.get_cellmesh_anatomy_tree()
-        print(tree)
+        #print(tree)
 
 
 if __name__ == '__main__':
