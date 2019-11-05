@@ -98,10 +98,10 @@ class CellMeshTest(unittest.TestCase):
         print(results[:3])
         results = prob_method.prob_test(genes, species='mouse', db_dir=cellmesh.ANATOMY_DB_DIR)
         print(results[:3])
-        #self.assertEqual(results[0][1], 'Myocytes, Smooth Muscle')
+        self.assertEqual(results[0][1], 'Muscle, Smooth')
         results = prob_method.prob_test(genes, species='both', db_dir=cellmesh.ANATOMY_DB_DIR)
         print(results[:3])
-        #self.assertEqual(results[0][1], 'Myocytes, Smooth Muscle')
+        self.assertEqual(results[0][1], 'Muscle, Smooth')
 
 
     def test_get_descendants(self):
@@ -137,10 +137,16 @@ class CellMeshTest(unittest.TestCase):
                  'Dcn']
         results = go_query.gene_set_query(genes, return_header=False)
         self.assertTrue(len(results) > 0)
+        print('mouse results')
+        print(results[0])
+        results = go_query.gene_set_query(genes, return_header=False, species='human')
+        self.assertTrue(len(results) > 0)
+        print('human results')
         print(results[0])
 
     def test_tree(self):
         tree = cellmesh.get_cellmesh_anatomy_tree()
+        self.assertTrue(len(tree) > 0)
         #print(tree)
 
 
