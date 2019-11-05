@@ -18,8 +18,8 @@ TFIDF_THRESHOLD = 0.034154
 COUNT_THRESHOLD = 3
 N_CELLS_THRESHOLD_TFIDF = 534
 SPECIES_MAP = {'mus_musculus': 10090, 'homo_sapiens': 9606, 'human': 9606, 'mouse': 10090, 'worm': 6239, 'c_elegans': 6239}
-SPECIES_TFIDF_THRESHOLDS = {'mus_musculus': 0.03856, 'mouse': 0.03856, 'homo_sapiens': 0.03342, 'human': 0.03342, 'worm': 0, 'c_elegans': 0}
-SPECIES_TFIDF_THRESHOLDS_ANATOMY = {'mus_musculus': 0.04891, 'mouse': 0.04891, 'homo_sapiens': 0.04911, 'human': 0.04911, 'worm': 0, 'c_elegans': 0}
+SPECIES_TFIDF_THRESHOLDS = {'mus_musculus': 0.03856, 'mouse': 0.03856, 'homo_sapiens': 0.03342, 'human': 0.03342, 'worm': 0, 'c_elegans': 0, 'both': 0.03342}
+SPECIES_TFIDF_THRESHOLDS_ANATOMY = {'mus_musculus': 0.04891, 'mouse': 0.04891, 'homo_sapiens': 0.04911, 'human': 0.04911, 'worm': 0, 'c_elegans': 0, 'both': 0.04891}
 BOTH_TAXIDS = [9606, 10090]
 
 @lru_cache(maxsize=None)
@@ -127,11 +127,11 @@ def get_cell_genes_pmids(cell, threshold=3, db_dir=DB_DIR, species='homo_sapiens
     statement = 'SELECT gene, pmids, count FROM cell_gene WHERE cellID=? AND taxid=?'
     if use_tfidf:
         statement = 'SELECT gene, pmids, tfidf FROM cell_gene WHERE cellID=? AND taxid=?'
-        if threshold == 3:
+        if threshold > 1:
             if db_dir == DB_DIR:
-                threshold == SPECIES_TFIDF_THRESHOLDS[species]
+                threshold = SPECIES_TFIDF_THRESHOLDS[species]
             elif db_dir == ANATOMY_DB_DIR:
-                threshold == SPECIES_TFIDF_THRESHOLDS_ANATOMY[species]
+                threshold = SPECIES_TFIDF_THRESHOLDS_ANATOMY[species]
     if species == 'both':
         # merge results by gene
         gene_results = {}
