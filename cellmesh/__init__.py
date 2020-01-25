@@ -115,6 +115,20 @@ def get_all_cell_id_names(db_dir=DB_DIR, include_cell_components=True, include_c
     return results
 
 @lru_cache(maxsize=None)
+def get_cell_id_from_name(cell_name, db_dir=DB_DIR):
+    """
+    Returns a string representing the cell id, given the cell name.
+    """
+    conn = sqlite3.connect(db_dir)
+    C = conn.cursor()
+    C.execute('SELECT DISTINCT cellID FROM cell_name WHERE cellName=?', (cell_name,))
+    results = C.fetchall()
+    if len(results) > 0:
+        return results[0][0]
+    else:
+        return None
+
+@lru_cache(maxsize=None)
 def get_cell_genes_pmids(cell, threshold=3, db_dir=DB_DIR, species='homo_sapiens', return_count=False, use_tfidf=False,
         uppercase_gene_names=True):
     """
@@ -123,7 +137,6 @@ def get_cell_genes_pmids(cell, threshold=3, db_dir=DB_DIR, species='homo_sapiens
     """
     conn = sqlite3.connect(db_dir)
     C = conn.cursor()
-    # TODO: deal with 'both'
     statement = 'SELECT gene, pmids, count FROM cell_gene WHERE cellID=? AND taxid=?'
     if use_tfidf:
         statement = 'SELECT gene, pmids, tfidf FROM cell_gene WHERE cellID=? AND taxid=?'
