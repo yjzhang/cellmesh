@@ -83,6 +83,7 @@ def get_descendants(cell_types, db_dir=ANATOMY_DB_DIR):
 
 @lru_cache(maxsize=None)
 def get_all_cell_id_names(db_dir=DB_DIR, include_cell_components=True, include_chromosomes=False, include_cell_lines=False,
+        include_cells=True,
         cell_type_subset=None):
     """
     Returns a list of all unique cell ids + names - tuple (cell_id, cell_name)
@@ -105,6 +106,10 @@ def get_all_cell_id_names(db_dir=DB_DIR, include_cell_components=True, include_c
         with open(os.path.join(PATH, 'data', 'cell_line_ids.txt')) as f:
             cell_lines = set(x.strip() for x in f.readlines())
             results = [x for x in results if x[0] not in cell_lines]
+    if not include_cells:
+        # remove anything under 'Cells' (A11 or D002477)
+        descendants = get_descendants(('D002477',))
+        results = [x for x in results if x[0] not in descendants]
     if cell_type_subset is not None:
         try:
             descendants = get_descendants(tuple(cell_type_subset))
