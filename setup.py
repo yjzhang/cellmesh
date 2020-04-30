@@ -1,6 +1,8 @@
 from setuptools import setup, find_packages
 from setuptools.command.develop import develop
 from setuptools.command.install import install
+# basically this unzips the db files before installing
+from setuptools.command.build_py import build_py
 
 from setuptools import Command
 # https://stackoverflow.com/questions/20288711/post-install-script-with-python-setuptools
@@ -10,8 +12,8 @@ import subprocess
 
 PATH = os.path.dirname(__file__)
 DB_PATH = os.path.join(PATH, 'cellmesh', 'data')
-DB_FILES = ['cellmesh.db', 'cellmesh_tfidf.db', 'anatomy_mesh.db']
-GZ_DB_FILES = ['cellmesh.db.gz', 'cellmesh_tfidf.db.gz', 'anatomy_mesh.db.gz']
+DB_FILES = ['cellmesh.db', 'anatomy_mesh.db']
+GZ_DB_FILES = ['cellmesh.db.gz', 'anatomy_mesh.db.gz']
 
 
 class DevelopWithGunzip(develop):
@@ -26,10 +28,18 @@ class DevelopWithGunzip(develop):
 class InstallWithGunzip(install):
 
     def run(self):
-        print('unzipping db files')
+        print('unzipping db files (install)')
         for f in GZ_DB_FILES:
             subprocess.run('gunzip {0}'.format(os.path.join(DB_PATH, f)), shell=True)
         install.run(self)
+
+class BuildWithGunzip(build_py):
+
+    def run(self):
+        print('unzipping db files (build_py)')
+        for f in GZ_DB_FILES:
+            subprocess.run('gunzip {0}'.format(os.path.join(DB_PATH, f)), shell=True)
+        build_py.run(self)
 
 class GunzipDBFiles(Command):
     user_options = []
@@ -65,6 +75,7 @@ setup(
     install_requires=['backports.functools_lru_cache', 'goatools'],
     packages=find_packages("."),
     cmdclass={
+        'build_py': BuildWithGunzip,
         'develop': DevelopWithGunzip,
         'install': InstallWithGunzip,
         'unzip': GunzipDBFiles,
@@ -72,7 +83,7 @@ setup(
     },
     # this is for including the data dir in the package.
     zip_safe=False,
-    package_data={'cellmesh': ['data/cellmesh.db', 'data/cellmesh_tfidf.db', 'data/anatomy_mesh.db', 'data/cell_component_ids.txt', 'data/chromosome_ids.txt', 'data/*.txt']},
+    package_data={'cellmesh': ['data/cellmesh.db', 'data/cellmesh.db.gz', 'data/anatomy_mesh.db', 'data/anatomy_mesh.db.gz', 'data/*.txt']},
     include_package_data=True,
     classifiers=[
         'Development Status :: 3 - Alpha',
