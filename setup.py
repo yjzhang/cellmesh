@@ -67,7 +67,7 @@ class GzipDBFiles(Command):
 
 setup(
     name='cellmesh',
-    version='0.0.1',
+    version='0.1.0',
     author='Yue Zhang',
     author_email='yjzhang@cs.washington.edu',
     url='https://github.com/yjzhang/cellmesh',
@@ -92,5 +92,4 @@ setup(
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3.5',
     ],
-
 )
