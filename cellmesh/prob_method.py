@@ -97,8 +97,11 @@ def prob_test(genes, return_header=False, include_cell_components=False, include
       in descending order
   '''
   genes = [x.upper() for x in genes]
+  if isinstance(cell_type_subset, list):
+    cell_type_subset = tuple(cell_type_subset)
+
   all_cells = get_all_cell_id_names(
-    db_dir=db_dir, include_cell_components=include_cell_components, include_chromosomes=include_chromosomes, cell_type_subset=tuple(cell_type_subset))
+    db_dir=db_dir, include_cell_components=include_cell_components, include_chromosomes=include_chromosomes, cell_type_subset=cell_type_subset)
   all_genes = get_all_genes(db_dir=db_dir, species=species)
   N_all_genes = len(all_genes)
 
