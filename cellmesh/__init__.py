@@ -73,13 +73,16 @@ def get_descendants(cell_types, db_dir=ANATOMY_DB_DIR):
     """
     conn = sqlite3.connect(db_dir)
     C = conn.cursor()
-    descendants = []
+    descendants = list(cell_types)
     for cell in cell_types:
+        print(cell)
         C.execute('SELECT children FROM cell_children WHERE cellID=?', (cell,))
         results = C.fetchall()
+        print(results)
         r = results[0][0].split(',')
         descendants += r
     return descendants
+
 
 @lru_cache(maxsize=None)
 def get_all_cell_id_names(db_dir=DB_DIR, include_cell_components=True, include_chromosomes=False, include_cell_lines=False,
@@ -111,11 +114,8 @@ def get_all_cell_id_names(db_dir=DB_DIR, include_cell_components=True, include_c
         descendants = get_descendants(('D002477',))
         results = [x for x in results if x[0] not in descendants]
     if cell_type_subset is not None:
-        try:
-            descendants = get_descendants(tuple(cell_type_subset))
-            results = [x for x in results if x[0] not in descendants]
-        except:
-            results = [x for x in results if x[0] not in cell_type_subset]
+        descendants = get_descendants(tuple(cell_type_subset))
+        results = [x for x in results if x[0] in descendants]
     conn.close()
     return results
 

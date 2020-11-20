@@ -75,7 +75,8 @@ def prob_test_default_params():
   return params
 
 def prob_test(genes, return_header=False, include_cell_components=False, include_chromosomes=False, params=None,
-        db_dir=DB_DIR, species='homo_sapiens'):
+        db_dir=DB_DIR, species='homo_sapiens',
+        cell_type_subset=None):
   '''
   This is the Maximum Likelihood query test on the tf-idf matrix
     the function is modified so that it has similar I/O structure as normed_hypergeometric_test
@@ -97,7 +98,7 @@ def prob_test(genes, return_header=False, include_cell_components=False, include
   '''
   genes = [x.upper() for x in genes]
   all_cells = get_all_cell_id_names(
-    db_dir=db_dir, include_cell_components=include_cell_components, include_chromosomes=include_chromosomes)
+    db_dir=db_dir, include_cell_components=include_cell_components, include_chromosomes=include_chromosomes, cell_type_subset=tuple(cell_type_subset))
   all_genes = get_all_genes(db_dir=db_dir, species=species)
   N_all_genes = len(all_genes)
 
