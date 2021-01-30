@@ -22,10 +22,11 @@ SPECIES_TFIDF_THRESHOLDS = {'mus_musculus': 0.03856, 'mouse': 0.03856, 'homo_sap
 SPECIES_TFIDF_THRESHOLDS_ANATOMY = {'mus_musculus': 0.04891, 'mouse': 0.04891, 'homo_sapiens': 0.04911, 'human': 0.04911, 'worm': 0, 'c_elegans': 0, 'both': 0.04891}
 BOTH_TAXIDS = [9606, 10090]
 
+
 @lru_cache(maxsize=None)
 def get_all_genes(db_dir=DB_DIR, species='human', uppercase_names=True):
     """
-    Returns a list of all unique gene symbols.
+    Returns a list of all unique gene symbols for the given species.
     """
     conn = sqlite3.connect(db_dir)
     C = conn.cursor()
@@ -50,6 +51,7 @@ def get_all_genes(db_dir=DB_DIR, species='human', uppercase_names=True):
         else:
             return [x[0] for x in results]
 
+
 @lru_cache(maxsize=None)
 def get_immediate_descendants(cell_type, db_dir=ANATOMY_DB_DIR):
     """
@@ -63,6 +65,7 @@ def get_immediate_descendants(cell_type, db_dir=ANATOMY_DB_DIR):
     if len(r) == 1 and r[0] == '':
         return []
     return r
+
 
 @lru_cache(maxsize=None)
 def get_descendants(cell_types, db_dir=ANATOMY_DB_DIR):
@@ -119,6 +122,7 @@ def get_all_cell_id_names(db_dir=DB_DIR, include_cell_components=True, include_c
     conn.close()
     return results
 
+
 @lru_cache(maxsize=None)
 def get_cell_id_from_name(cell_name, db_dir=DB_DIR):
     """
@@ -132,6 +136,7 @@ def get_cell_id_from_name(cell_name, db_dir=DB_DIR):
         return results[0][0]
     else:
         return None
+
 
 @lru_cache(maxsize=None)
 def get_cell_genes_pmids(cell, threshold=3, db_dir=DB_DIR, species='homo_sapiens', return_count=False, use_tfidf=False,
@@ -200,7 +205,8 @@ def hypergeometric_test(genes, return_header=False, include_cell_components=Fals
     genes = [x.upper() for x in genes]
     if isinstance(cell_type_subset, list):
         cell_type_subset = tuple(cell_type_subset)
-    all_cells = get_all_cell_id_names(include_cell_components=include_cell_components,
+    all_cells = get_all_cell_id_names(
+            include_cell_components=include_cell_components,
             include_chromosomes=include_chromosomes, include_cell_lines=include_cell_lines,
             db_dir=db_dir, cell_type_subset=cell_type_subset)
     all_genes = get_all_genes(db_dir=db_dir, species=species, uppercase_names=True)
@@ -230,6 +236,7 @@ def hypergeometric_test(genes, return_header=False, include_cell_components=Fals
         header = ['MeSH ID', 'Cell Name', 'P-value', 'Overlapping Genes', 'PMIDs']
         cell_p_vals = [header] + cell_p_vals
     return cell_p_vals
+
 
 def normed_hypergeometric_test(genes, **kwargs):
     """
@@ -261,6 +268,7 @@ def cellmesh_to_cellonto(name_or_id, is_name=True):
         for name in name_or_id:
             outputs.append(cellmesh_to_cellonto_single(name, data, is_name))
     return outputs
+
 
 def cellmesh_to_cellonto_single(name_or_id, data=None, is_name=True):
     """
